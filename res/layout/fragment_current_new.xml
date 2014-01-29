@@ -1,0 +1,369 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_gradient"
+    android:orientation="vertical" >
+    
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:layout_weight="20"
+    >
+    
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/relativeLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_marginRight="8dp"
+     >
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_summary_static"
+    android:text="Summary:"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#DDDDDD"
+    android:textSize="28sp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentLeft="true"
+    android:layout_alignParentTop="true"
+    android:gravity="left"
+    android:paddingTop="18dp"
+    android:paddingBottom="2dp"
+    android:paddingLeft="15dp" />
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_summary"
+    android:text="Mostly Cloudy"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#FFFFFF"
+    android:textSize="28sp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_alignBaseline="@+id/text_current_summary_static"
+    android:gravity="left"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp" />
+
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_temp_static"
+    android:text="Temperature:"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#DDDDDD"
+    android:textSize="28sp"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/text_current_summary_static"
+    android:gravity="left"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp"
+    android:paddingLeft="15dp" />
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_temp"
+    android:text="82°"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#FFFFFF"
+    android:textSize="28sp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_alignBaseline="@+id/text_current_temp_static"
+    android:gravity="left"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp" />
+
+
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_dewpoint_static"
+    android:text="Dew Point:"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#DDDDDD"
+    android:textSize="28sp"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/text_current_temp_static"
+    android:gravity="left"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp"
+    android:paddingLeft="15dp" />
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_dewpoint"
+    android:text="68°"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#FFFFFF"
+    android:textSize="28sp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_alignBaseline="@+id/text_current_dewpoint_static"
+    android:gravity="left"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp" />
+
+
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_precip_static"
+    android:text="Precip. Intensity:"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#DDDDDD"
+    android:textSize="28sp"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/text_current_dewpoint_static"
+    android:gravity="left"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp"
+    android:paddingLeft="15dp"/>
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_precip"
+    android:text="0"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#FFFFFF"
+    android:textSize="28sp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_alignBaseline="@+id/text_current_precip_static"
+    android:gravity="left"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp" />
+
+
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_windspeed_static"
+    android:text="Wind Speed:"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#DDDDDD"
+    android:textSize="28sp"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/text_current_precip_static"
+    android:gravity="left"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp"
+    android:paddingLeft="15dp" />
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_windspeed"
+    android:text="3 mph"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#FFFFFF"
+    android:textSize="28sp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_alignBaseline="@+id/text_current_windspeed_static"
+    android:gravity="left"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp" />
+
+
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_windbearing_static"
+    android:text="Wind Bearing:"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#DDDDDD"
+    android:textSize="28sp"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/text_current_windspeed_static"
+    android:gravity="left"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp"
+    android:paddingLeft="15dp"/>
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_windbearing"
+    android:text="132°"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#FFFFFF"
+    android:textSize="28sp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_alignBaseline="@+id/text_current_windbearing_static"
+    android:gravity="left"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp" />
+
+
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_cloudcover_static"
+    android:text="Cloud Cover:"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#DDDDDD"
+    android:textSize="28sp"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/text_current_windbearing_static"
+    android:gravity="left"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp"
+    android:paddingLeft="15dp"/>
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_cloudcover"
+    android:text="67%"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#FFFFFF"
+    android:textSize="28sp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_alignBaseline="@+id/text_current_cloudcover_static"
+    android:gravity="left"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp" />
+
+
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_humidity_static"
+    android:text="Humidity:"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#DDDDDD"
+    android:textSize="28sp"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/text_current_cloudcover_static"
+    android:gravity="left"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp"
+    android:paddingLeft="15dp" />
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_humidity"
+    android:text="23%"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#FFFFFF"
+    android:textSize="28sp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_alignBaseline="@+id/text_current_humidity_static"
+    android:gravity="left"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp" />
+
+
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_pressure_static"
+    android:text="Pressure:"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#DDDDDD"
+    android:textSize="28sp"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/text_current_humidity_static"
+    android:gravity="left"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp"
+    android:paddingLeft="15dp" />
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_pressure"
+    android:text="1132 mb"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#FFFFFF"
+    android:textSize="28sp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_alignBaseline="@+id/text_current_pressure_static"
+    android:gravity="left"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp" />
+
+
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_visibility_static"
+    android:text="Visibility:"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#DDDDDD"
+    android:textSize="28sp"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/text_current_pressure_static"
+    android:gravity="left"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp"
+    android:paddingLeft="15dp" />
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_visibility"
+    android:text="10 mi"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#FFFFFF"
+    android:textSize="28sp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_alignBaseline="@+id/text_current_visibility_static"
+    android:gravity="left"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp" />
+
+
+
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_ozone_static"
+    android:text="Ozone:"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#DDDDDD"
+    android:textSize="28sp"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/text_current_visibility_static"
+    android:gravity="left"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp"
+    android:paddingLeft="15dp" />
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_ozone"
+    android:text="138"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#FFFFFF"
+    android:textSize="28sp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_alignBaseline="@+id/text_current_ozone_static"
+    android:gravity="left"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp" />
+
+
+
+</RelativeLayout>
+</ScrollView>
+
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_current_forecastio"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:fontFamily="sans-serif"
+    android:layout_gravity="right"
+    android:padding="8dp"
+    android:text="@string/poweredBy"
+    android:textColor="#e7e7e7"
+    android:textSize="18sp"
+    android:textStyle="italic" />
+
+</LinearLayout>

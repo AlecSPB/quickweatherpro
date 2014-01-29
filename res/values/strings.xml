@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Quick Weather Pro</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string-array name="nav_array">
+        <item>Weather Summary</item>
+        <item>Current Weather</item>
+        <item>Hourly Forecast</item>
+        <item>7-Day Forecast</item>
+    </string-array>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="app_not_available">Sorry, there\'s no web browser available</string>
+    <string name="poweredBy">powered by <a href="http://forecast.io/">forecast.io</a></string>
+    <string name="gps_location">GPS Location</string>
+    <string name="user_location">User Set Location</string>
+    <string name="no_data_toast_title">No data connection.</string>
+    <string name="no_data_toast_message">Make sure you have wifi or network data enabled.</string>
+    <string name="no_gps_toast_title">Could not find your location.</string>
+    <string name="no_gps_toast_message">Make sure you either have GPS enabled or have manually set a location under settings.</string>
+    <string name="api_key">317e87f882c890e30f4a5e9b3c05c7c0</string>
+    
+
+</resources>

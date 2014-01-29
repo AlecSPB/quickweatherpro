@@ -1,0 +1,159 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#000000"
+    >
+    
+     
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:layout_weight="20"
+    android:background="#000000"
+    >
+    
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#000000"
+     >
+    
+     
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_location"
+    android:text="Location"
+    android:fontFamily="sans-serif" 
+    android:textStyle="bold"
+    android:textColor="#FFFFFF"
+    android:textSize="40sp"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="#000000"
+    android:gravity="center"
+    android:paddingTop="20dp"
+    android:paddingBottom="2dp" />
+    
+    
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_summary_now_static"
+    android:text="NOW:"
+    android:fontFamily="sans-serif"
+    android:textStyle="italic|bold"
+    android:textColor="#FFFFFF"
+    android:textSize="32sp"
+    android:paddingTop="22dp"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="#000000"
+    android:gravity="center"
+    android:paddingBottom="2dp" />
+    
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_summary_now"
+    android:text="SUMMARY"
+    android:fontFamily="sans-serif-light" 
+    android:textColor="#FFFFFF"
+    android:textSize="20sp"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="#000000"
+    android:gravity="center"
+    android:padding="2dp" />
+ 
+    
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_summary_minutely_static"
+    android:text="NEXT HOUR:"
+    android:fontFamily="sans-serif" 
+    android:textStyle="italic|bold"
+    android:textColor="#FFFFFF"
+    android:textSize="32sp"
+    android:layout_height="wrap_content"
+    android:layout_width="fill_parent"
+    android:background="#000000"
+    android:gravity="center"
+    android:padding="2dp" />
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_summary_minutely"
+    android:text="SUMMARY"
+    android:fontFamily="sans-serif-light" 
+    android:textColor="#FFFFFF"
+    android:textSize="20sp"
+    android:layout_height="wrap_content"
+    android:layout_width="fill_parent"
+    android:background="#000000"
+    android:gravity="center"
+    android:padding="2dp" />
+
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_summary_hourly_static"
+    android:text="NEXT 24 HOURS:"
+    android:fontFamily="sans-serif" 
+    android:textStyle="italic|bold"
+    android:textColor="#FFFFFF"
+    android:textSize="32sp"
+    android:layout_height="wrap_content"
+    android:layout_width="fill_parent"
+    android:background="#000000"
+    android:gravity="center"
+    android:padding="2dp" />
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_summary_hourly"
+    android:text="SUMMARY"
+    android:fontFamily="sans-serif-light" 
+    android:textColor="#FFFFFF"
+    android:textSize="20sp"
+    android:layout_height="wrap_content"
+    android:layout_width="fill_parent"
+    android:background="#000000"
+    android:gravity="center"
+    android:padding="2dp" />
+
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_summary_daily_static"
+    android:text="NEXT 7 DAYS:"
+    android:fontFamily="sans-serif" 
+    android:textStyle="italic|bold"
+    android:textColor="#FFFFFF"
+    android:textSize="32sp"
+    android:layout_height="wrap_content"
+    android:layout_width="fill_parent"
+    android:background="#000000"
+    android:gravity="center"
+    android:padding="2dp" />
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_summary_daily"
+    android:text="SUMMARY"
+    android:fontFamily="sans-serif-light" 
+    android:textColor="#FFFFFF"
+    android:textSize="20sp"
+    android:layout_height="wrap_content"
+    android:layout_width="fill_parent"
+    android:background="#000000"
+    android:gravity="center"
+    android:padding="2dp" />
+
+</LinearLayout>
+
+</ScrollView>
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_summary_forecastio"
+    android:text="@string/poweredBy"
+    android:fontFamily="sans-serif-thin" 
+    android:textColor="#e7e7e7"
+    android:textSize="18sp"
+    android:layout_weight="1"
+    android:textStyle="italic"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:background="#000000"
+	android:gravity="left|bottom"
+    android:padding="8dp" />
+
+</LinearLayout>

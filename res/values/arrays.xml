@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="units">
+        <item name="US">US</item>
+        <item name="SI">SI</item>
+    </string-array>
+    <string-array name="unitsValues">
+        <item name="US">us</item>
+        <item name="SI">si</item>
+    </string-array>
+    <string-array name="ui">
+        <item name="ORIGINAL">Original</item>
+        <item name="NEW">New</item>
+    </string-array>    
+    <string-array name="uiValues">
+        <item name="ORIGINAL">Original</item>
+        <item name="NEW">New</item>
+    </string-array>
+</resources>

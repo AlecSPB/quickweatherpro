@@ -1,0 +1,96 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/background_gradient"
+    >
+    
+     
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:layout_weight="20"
+    >
+    
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+     >
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/about_static"
+    android:text="ABOUT"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#BBBBBB"
+    android:textSize="16sp"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:gravity="left"
+    android:layout_marginTop="35dp" />
+
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/about_desc"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:fontFamily="sans-serif-condensed"
+    android:gravity="left"
+    android:text="This app is developed by Bradley Nemitz."
+    android:textColor="#FFFFFF"
+    android:textSize="18sp" />
+
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/about_desc2"
+    android:layout_width="wrap_content"
+    android:layout_marginTop="25dp"
+    android:layout_height="wrap_content"
+    android:fontFamily="sans-serif-condensed"
+    android:gravity="left"
+    android:text="The weather API is powered by forecast.io."
+    android:textColor="#FFFFFF"
+    android:textSize="18sp" />
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/about_desc3"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:fontFamily="sans-serif-condensed"
+    android:gravity="left"
+    android:paddingTop="10dp"
+    android:text="Weather icons are from the Meteocons set by Alessio Atzeni."
+    android:textColor="#FFFFFF"
+    android:textSize="18sp" />
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/about_desc4"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:fontFamily="sans-serif-condensed"
+    android:gravity="left"
+    android:paddingTop="10dp"
+    android:text="The latest redesign was greatly influenced and helped by André Goersch."
+    android:textColor="#FFFFFF"
+    android:textSize="18sp" />
+
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/about_desc2"
+    android:layout_width="wrap_content"
+    android:layout_marginTop="25dp"
+    android:layout_height="wrap_content"
+    android:fontFamily="sans-serif-condensed"
+    android:gravity="left"
+    android:text="If you have any suggestions, concerns, or questions, please contact me at brad.nemitz+androiddev@gmail.com."
+    android:textColor="#FFFFFF"
+    android:textSize="18sp" />
+
+
+</LinearLayout>
+
+</ScrollView>
+
+</LinearLayout>

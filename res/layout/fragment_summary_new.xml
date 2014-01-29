@@ -1,0 +1,162 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/background_gradient"
+    >
+    
+     
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:layout_weight="20"
+    >
+    
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+     >
+
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_now_temp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentLeft="true"
+    android:layout_alignParentTop="true"
+    android:fontFamily="sans-serif-condensed"
+    android:gravity="left"
+    android:text="70°"
+    android:textColor="#FFFFFF"
+    android:textSize="90sp" />
+
+<ImageView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/icon"
+    android:layout_width="110dp"
+    android:layout_height="110dp"
+    android:layout_alignParentTop="true"
+    android:layout_alignParentRight="true"
+    android:layout_toRightOf="@+id/text_now_temp"
+    android:src="@drawable/clearday"
+    android:layout_marginTop="20dp"
+    android:layout_marginLeft="20dp"
+    android:scaleX="1"
+    android:scaleY="1"
+     />
+
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_summary_now"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/text_now_temp"
+    android:layout_marginTop="-25dp"
+    android:layout_alignParentLeft="true"
+    android:fontFamily="sans-serif-condensed"
+    android:gravity="left"
+    android:text="Mostly Cloudy"
+    android:textColor="#FFFFFF"
+    android:textSize="28sp" />
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_summary_minutely_static"
+    android:text="NEXT HOUR"
+    android:fontFamily="sans-serif-condensed" 
+    android:textColor="#BBBBBB"
+    android:textSize="16sp"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:gravity="left"
+    android:layout_below="@+id/text_summary_now"
+    android:layout_marginTop="35dp" />
+
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_summary_minutely"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/text_summary_minutely_static"
+    android:layout_alignParentLeft="true"
+    android:fontFamily="sans-serif-condensed"
+    android:gravity="left"
+    android:text="Light rain starting in 10 minutes."
+    android:textColor="#FFFFFF"
+    android:textSize="22sp" />
+
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_summary_hourly_static"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/text_summary_minutely"
+    android:layout_alignParentLeft="true"
+    android:layout_marginTop="25dp"
+    android:fontFamily="sans-serif-condensed"
+    android:gravity="left"
+    android:text="NEXT 24 HOURS"
+    android:textColor="#BBBBBB"
+    android:textSize="16sp" />
+
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_summary_hourly"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/text_summary_hourly_static"
+    android:layout_alignParentLeft="true"
+    android:fontFamily="sans-serif-condensed"
+    android:gravity="left"
+    android:text="Light rain until tonight, starting again tomorrow morning."
+    android:textColor="#FFFFFF"
+    android:textSize="22sp" />
+
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_summary_daily_static"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/text_summary_hourly"
+    android:layout_alignParentLeft="true"
+    android:layout_marginTop="25dp"
+    android:fontFamily="sans-serif-condensed"
+    android:gravity="left"
+    android:text="NEXT 7 DAYS"
+    android:textColor="#BBBBBB"
+    android:textSize="16sp" />
+
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_summary_daily"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/text_summary_daily_static"
+    android:layout_alignParentLeft="true"
+    android:fontFamily="sans-serif-condensed"
+    android:gravity="left"
+    android:text="Light rain throughout the week; temperatures falling to 79° on Friday."
+    android:textColor="#FFFFFF"
+    android:textSize="22sp" />
+
+</RelativeLayout>
+
+</ScrollView>
+
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_summary_forecastio"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:layout_gravity="right"
+    android:fontFamily="sans-serif"
+    android:padding="8dp"
+    android:text="@string/poweredBy"
+    android:textColor="#e7e7e7"
+    android:textSize="18sp"
+    android:textStyle="italic" />
+
+</LinearLayout>

@@ -1,0 +1,35 @@
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    <ListPreference
+            android:key="units_selection"
+            android:title="Units"
+            android:summary="Switch between US or SI units. (requires refresh)"
+            android:defaultValue="us"
+            android:entries="@array/units"
+            android:entryValues="@array/unitsValues"            
+        />
+    <ListPreference
+            android:key="ui_selection"
+            android:title="UI"
+            android:summary="Switch between the new or original UI."
+            android:defaultValue="New"
+            android:entries="@array/ui"
+            android:entryValues="@array/uiValues"            
+        />
+     <CheckBoxPreference
+            android:key="userLocation"
+            android:defaultValue="false"
+            android:summary="Check if you would like to manually set your location. The app uses GPS location by default."
+            android:title="Manually set location?" 
+          />
+     
+     <EditTextPreference
+            android:title="Set Location"
+            android:summary="Enter the location to get weather information for. (More precise locations will provide more accurate forecasts.)"
+            android:dialogTitle="Set Location"
+            android:defaultValue="New York, NY"
+            android:dependency="userLocation" />
+     
+</PreferenceScreen>
