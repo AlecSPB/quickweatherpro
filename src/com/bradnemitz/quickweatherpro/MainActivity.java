@@ -61,9 +61,21 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bradnemitz.quickweatherpro.locationutils.*;
 
-public class MainActivity extends Activity implements LocationListener  {
-    private DrawerLayout mDrawerLayout;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.location.LocationClient;
+
+public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener  {
+   
+	LocationClient mLocationClient;
+	Location mCurrentLocation;
+	Location mFusedLocation;
+	private GPSTracker gps;
+	
+	private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
 
@@ -190,6 +202,9 @@ public class MainActivity extends Activity implements LocationListener  {
     	    	
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        mLocationClient = new LocationClient(this, this, this);
+        mLocationClient.connect();
 
         mTitle = mDrawerTitle = getTitle();
         mNavTitles = getResources().getStringArray(R.array.nav_array);
@@ -219,11 +234,11 @@ public class MainActivity extends Activity implements LocationListener  {
             public void onDrawerClosed(View view) {
             	if(uiPref.equals("New")){
             		getActionBar().setTitle(current_city);
-            		if(userOrGPS == false){
+            	/*	if(userOrGPS == false){
             			getActionBar().setSubtitle(getResources().getString(R.string.gps_location));
             		} else {
             			getActionBar().setSubtitle(getResources().getString(R.string.user_location));
-            		}
+            		} */
             	} else {
             		getActionBar().setTitle(mTitle);
             	}
@@ -233,11 +248,11 @@ public class MainActivity extends Activity implements LocationListener  {
             public void onDrawerOpened(View drawerView) {
             	if(uiPref.equals("New")){
             		getActionBar().setTitle(current_city);
-            		if(userOrGPS == false){
+            /*		if(userOrGPS == false){
             			getActionBar().setSubtitle(getResources().getString(R.string.gps_location));
             		} else {
             			getActionBar().setSubtitle(getResources().getString(R.string.user_location));
-            		}
+            		} */
             	} else {
             		getActionBar().setTitle(mDrawerTitle);
             	}
@@ -258,7 +273,14 @@ public class MainActivity extends Activity implements LocationListener  {
         if (CheckForDataConnection(getBaseContext()) == false){
 			Toast.makeText(getBaseContext(), getResources().getString(R.string.no_data_toast_title), Toast.LENGTH_LONG).show();
 		} else {
+		/*old url/location	
         url = getLocation();
+        */
+		
+		url = updateLatLong();
+			
+		System.out.println("Tried it with fused locastion");
+		
         if(url == null){
         	notUpdated = true;
         	// Notify of no location service
@@ -361,7 +383,7 @@ public class MainActivity extends Activity implements LocationListener  {
   	        // Initialize the location fields
   	        if (location != null) {
   	          System.out.println("Provider " + provider + " has been selected.");
-  	          newUrl = updateLatLong(location);
+  	          newUrl = updateLatLong();
   	        } else {
   	        	//do nothing, returned string is null
   	        	//provide check in other place for null url before calling
@@ -377,7 +399,7 @@ public class MainActivity extends Activity implements LocationListener  {
 
   	        // Initialize the location fields
   	        if (location != null) {
-  	          newUrl = updateLatLong(location);
+  	          newUrl = updateLatLong();
   	        }
 			
 			
@@ -393,25 +415,204 @@ public class MainActivity extends Activity implements LocationListener  {
     /* Request updates at startup */ 
     @Override
     protected void onResume() {
+    	
+    		if(gps == null)
+    		{
+    			gps = new GPSTracker(this);
+    		}
+            setupLocationUpdates(gps);
+    	    super.onResume();
+    	}
+    	
+    	/*OLD LOCATION CODE
       super.onResume();
       if(provider != null){
     	  locationManager.requestLocationUpdates(provider, 400, 1, this);
       } else {
     	  //DO SOMETHING SINCE YOU DON'T HAVE LOCATION
     	  Toast.makeText(this, "AIRPLANE MODE DEATH AVOIDED.", Toast.LENGTH_LONG).show();
-      }
-    }
+      } 
+    } */
 
     /* Remove the locationlistener updates when Activity is paused */
     @Override
     protected void onPause() {
+    	gps.stopUsingGPS();
+		super.onPause();
+	}
+   /*OLD LOCATION CODE
       super.onPause();
       if(provider != null){
     	  locationManager.removeUpdates(this);
       } else {
     	  Toast.makeText(this, "EXIT DEATH AVOIDED.", Toast.LENGTH_LONG).show();
       }
+    } */
+    
+	public Location getFusedLocation()
+	{
+        Location location = null;
+		location = getLastFusedLocation();
+		System.out.println("getting fused location, yo!");
+		return location;
+	}
+	
+	public Location getCurrentLocation()
+    {
+        Location location = null;
+
+        LocationManager mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE); 
+        final Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.NO_REQUIREMENT);  
+        String provider = mlocManager.getBestProvider(criteria, true);
+        System.out.println("best provider is " + provider);
+        String gpsprovider = "gps";
+        if(provider == null)
+        {
+        	return location;
+        }
+        
+        if(provider.equals(gpsprovider))
+        {
+        	boolean hasgpsloc = true;
+	        Date now = new Date();
+	        Long now_ms = now.getTime();
+	        Long last_ms;
+	        Long diff_ms = null;
+        	try
+        	{
+		        location = mlocManager.getLastKnownLocation(provider);     
+		        last_ms = location.getTime();
+		        diff_ms = now_ms - last_ms;
+        	}
+        	catch(Exception e)
+        	{
+        		hasgpsloc = false;
+        	}
+        
+        	if(hasgpsloc == false)
+        	{
+		        if(mlocManager.isProviderEnabled("network"))
+	        	{
+		        	location = mlocManager.getLastKnownLocation("network");     
+	        	}
+		        else
+		        {
+		        	location = mlocManager.getLastKnownLocation("passive");     
+		        }
+        	}
+        	else if(diff_ms >= 60000)
+	        {
+		        if(mlocManager.isProviderEnabled("network"))
+	        	{
+		        	//System.out.println("more than 1 minutes, going to network");
+		        	location = mlocManager.getLastKnownLocation("network");     
+	        	}
+		        else
+		        {
+		        	//System.out.println("more than 1 minutes, network, not enabled");
+			        location = mlocManager.getLastKnownLocation(provider);     
+		        }
+	        }
+        }
+        else
+        {
+        	//System.out.println("not gps");
+	        location = mlocManager.getLastKnownLocation(provider);     
+        }
+    		
+        return location;
     }
+    
+	 public Void setupLocationUpdates(GPSTracker gps)
+	    {
+	        LocationManager mlocManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);  
+	        if(gps.isGPSEnabled)
+	        {
+		        mlocManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 0, 0, gps);  
+	        }
+	        else if(gps.isNetworkEnabled)
+	        {
+		        mlocManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER, 0, 0, gps);  
+	        }
+	        else
+	        {
+		        mlocManager.requestLocationUpdates( LocationManager.PASSIVE_PROVIDER, 0, 0, gps);  
+	        }
+	        return null;
+	    }
+	    
+	    public Void stopLocationUpdates()
+	    {
+	        GPSTracker gps = new GPSTracker(this);
+	        gps.stopUsingGPS();
+	        return null;
+	    }
+	    
+	    @Override
+		public void onConnectionFailed(ConnectionResult arg0) {
+	    		//do stuff
+		}
+
+		@Override
+		public void onConnected(Bundle arg0) {
+	        getNewLocation();
+	        //do other stuff
+		}
+
+		@Override
+		public void onDisconnected() {
+	       //do stuff here too
+		}
+		
+		/**
+	     * Verify that Google Play services is available before making a request.
+	     *
+	     * @return true if Google Play services is available, otherwise false
+	     */
+	    private boolean servicesConnected() {
+
+	        // Check that Google Play services is available
+	        int resultCode =
+	                GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+
+	        // If Google Play services is available
+	        if (ConnectionResult.SUCCESS == resultCode) {
+	            // Continue
+	            return true;
+	        // Google Play services was not available for some reason
+	        } else {
+	            // Display an error dialog
+	            return false;
+	        }
+	    }
+
+	    /**
+	     * Invoked by the "Get Location" button.
+	     *
+	     * Calls getLastLocation() to get the current location
+	     *
+	     */
+	    public void getNewLocation() {
+	        if (servicesConnected()) {
+	        	if(mLocationClient.isConnected())
+	        	{
+		            mFusedLocation = mLocationClient.getLastLocation();
+	        	}
+	        }
+	    }
+	    
+	    public Location getLastFusedLocation()
+	    {
+	    	return mFusedLocation;
+	    }
+	    
+	    public LocationClient getLocationClient()
+	    {
+	    	return mLocationClient;
+	    }
+	
+    
     
     public void updateUI(){
         Fragment fragment = new FragmentMaker();
@@ -423,47 +624,54 @@ public class MainActivity extends Activity implements LocationListener  {
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
     }
 
-    public String updateLatLong(Location location) {
-      lat = (double) (location.getLatitude());
-      lng = (double) (location.getLongitude());
-      SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-      unitPref = sharedPref.getString("units_selection", "us");
-      url = "https://api.forecast.io/forecast/317e87f882c890e30f4a5e9b3c05c7c0/" + lat + "," + lng + "?units=" + unitPref;
-      System.out.println("Lat: " + lat);
-      System.out.println("Long: " + lng);
-      System.out.println("url: " + url);
-      
-      
-      //get current city
-      Geocoder gcd = new Geocoder(getBaseContext(), Locale.getDefault());
-      List<Address> addresses = null;
-	try {
-		addresses = gcd.getFromLocation(lat, lng, 1);
-	} catch (IOException e) {
-		
-		e.printStackTrace();
-	}
-      if (addresses != null) {
-         // System.out.println(addresses.get(0).getLocality());
-    	  try{
-          current_city = addresses.get(0).getLocality();
-          //current_city = current_city.toUpperCase();
-          System.out.println(current_city);
-  		  getActionBar().setTitle(current_city);
-	  		if(userOrGPS == false){
-				getActionBar().setSubtitle("GPS Location");
-			} else {
-				getActionBar().setSubtitle("User Set Location");
-			}
-    	  } catch (NullPointerException e) {
-    		  //There's an error! Do something
-    	  } catch (IndexOutOfBoundsException i) {
-    		  //Different error! Oh no!
-      	  }
-    	  
-      } else {
-    	  current_city = "Could not find city name";
-      }
+    public String updateLatLong() {
+    	Location location = getFusedLocation();
+    	if(location != null){
+		      lat = (double) (location.getLatitude());
+		      lng = (double) (location.getLongitude());
+		      SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+		      unitPref = sharedPref.getString("units_selection", "us");
+		      url = "https://api.forecast.io/forecast/317e87f882c890e30f4a5e9b3c05c7c0/" + lat + "," + lng + "?units=" + unitPref;
+		      System.out.println("Lat: " + lat);
+		      System.out.println("Long: " + lng);
+		      System.out.println("url: " + url);
+    
+	      
+	      //get current city
+	      Geocoder gcd = new Geocoder(getBaseContext(), Locale.getDefault());
+	      List<Address> addresses = null;
+		try {
+			addresses = gcd.getFromLocation(lat, lng, 1);
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
+	      if (addresses != null) {
+	         // System.out.println(addresses.get(0).getLocality());
+	    	  try{
+	          current_city = addresses.get(0).getLocality();
+	          //current_city = current_city.toUpperCase();
+	          System.out.println(current_city);
+	  		  getActionBar().setTitle(current_city);
+		  	/*	if(userOrGPS == false){
+					getActionBar().setSubtitle("GPS Location");
+				} else {
+					getActionBar().setSubtitle("User Set Location");
+				} */
+	    	  } catch (NullPointerException e) {
+	    		  //There's an error! Do something
+	    	  } catch (IndexOutOfBoundsException i) {
+	    		  //Different error! Oh no!
+	      	  }
+	    	  
+	      } else {
+	    	  current_city = "Could not find city name";
+	      }
+	      
+    } else {
+    	url = null;
+		System.out.println("fused location was null. for no good reason.");
+  	}
       
       return url;
 
@@ -573,8 +781,9 @@ public class MainActivity extends Activity implements LocationListener  {
     				alertDialog.show();
         		
         		    		} else {
-    			
-                url = getLocation();
+        		    			
+                url = updateLatLong();
+                
                 if(url == null){
                 	// Notify of no location service
                 	AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -708,11 +917,11 @@ public class MainActivity extends Activity implements LocationListener  {
         	colorDrawable.setColor(Color.parseColor("#222222"));
         	getActionBar().setBackgroundDrawable(colorDrawable);
         	getActionBar().setTitle(current_city);
-    		if(userOrGPS == false){
+    	/*	if(userOrGPS == false){
     			getActionBar().setSubtitle("GPS Location");
     		} else {
     			getActionBar().setSubtitle("User Set Location");
-    		}
+    		} */
         } else {        
         	getActionBar().setBackgroundDrawable(colorDrawable);
         }
@@ -728,11 +937,11 @@ public class MainActivity extends Activity implements LocationListener  {
     	if(uiPref.equals("New")){
     		//Set actionbar to location
     		getActionBar().setTitle(current_city);
-    		if(userOrGPS == false){
+    	/*	if(userOrGPS == false){
     			getActionBar().setSubtitle("GPS Location");
     		} else {
     			getActionBar().setSubtitle("User Set Location");
-    		}
+    		} */
     	} else {
 	        mTitle = title;
 	        getActionBar().setTitle(mTitle);
@@ -1908,4 +2117,5 @@ public class MainActivity extends Activity implements LocationListener  {
 		    }
 	   
 		}
+
 }

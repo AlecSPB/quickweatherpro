@@ -21,7 +21,8 @@
      <CheckBoxPreference
             android:key="userLocation"
             android:defaultValue="false"
-            android:summary="Check if you would like to manually set your location. The app uses GPS location by default."
+            android:enabled="false"
+            android:summary="COMING SOON! - Check if you would like to manually set your location. The app uses device location by default."
             android:title="Manually set location?" 
           />
      
