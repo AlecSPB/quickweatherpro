@@ -20,7 +20,7 @@
     <string name="no_data_toast_title">No data connection.</string>
     <string name="no_data_toast_message">Make sure you have wifi or network data enabled.</string>
     <string name="no_gps_toast_title">Could not find your location.</string>
-    <string name="no_gps_toast_message">Make sure you either have GPS enabled or have manually set a location under settings.</string>
+    <string name="no_gps_toast_message">Connection to the location service failed. Make sure you have your location enabled in system settings. \n \nIf you just enabled your location, it may take some time for an initial connection to be established.</string>
     <string name="api_key">317e87f882c890e30f4a5e9b3c05c7c0</string>
     
 

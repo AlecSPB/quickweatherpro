@@ -38,6 +38,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+//import android.provider.Settings;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -273,9 +274,12 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         if (CheckForDataConnection(getBaseContext()) == false){
 			Toast.makeText(getBaseContext(), getResources().getString(R.string.no_data_toast_title), Toast.LENGTH_LONG).show();
 		} else {
+		
 		/*old url/location	
         url = getLocation();
         */
+		
+		/*
 		
 		url = updateLatLong();
 			
@@ -305,7 +309,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 				alertDialog.show();
         } else {
         		new PostTask().execute(url);
-        }
+        } */
 		}
         
     }
@@ -363,7 +367,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
   }			
    
     
-    
+   /* 
 	public String getLocation(){
 		
 		String newUrl = null;
@@ -407,7 +411,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 		
 	    return newUrl; 			
 
-    }
+    } */
     
 
     /* //////START COPIED LOCATION METHODS
@@ -416,12 +420,12 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     @Override
     protected void onResume() {
     	
-    		if(gps == null)
-    		{
-    			gps = new GPSTracker(this);
-    		}
-            setupLocationUpdates(gps);
-    	    super.onResume();
+    	if(gps == null){
+    		gps = new GPSTracker(this);
+    	}
+    	setupLocationUpdates(gps);
+        super.onResume();
+        
     	}
     	
     	/*OLD LOCATION CODE
@@ -438,7 +442,8 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     @Override
     protected void onPause() {
     	gps.stopUsingGPS();
-		super.onPause();
+
+    	super.onPause();
 	}
    /*OLD LOCATION CODE
       super.onPause();
@@ -453,9 +458,9 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 	{
         Location location = null;
 		location = getLastFusedLocation();
-		System.out.println("getting fused location, yo!");
 		return location;
 	}
+	
 	
 	public Location getCurrentLocation()
     {
@@ -505,24 +510,24 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 	        {
 		        if(mlocManager.isProviderEnabled("network"))
 	        	{
-		        	//System.out.println("more than 1 minutes, going to network");
+		        	System.out.println("more than 1 minutes, going to network");
 		        	location = mlocManager.getLastKnownLocation("network");     
 	        	}
 		        else
 		        {
-		        	//System.out.println("more than 1 minutes, network, not enabled");
+		        	System.out.println("more than 1 minutes, network, not enabled");
 			        location = mlocManager.getLastKnownLocation(provider);     
 		        }
 	        }
         }
         else
         {
-        	//System.out.println("not gps");
+        	System.out.println("not gps");
 	        location = mlocManager.getLastKnownLocation(provider);     
         }
     		
         return location;
-    }
+    } 
     
 	 public Void setupLocationUpdates(GPSTracker gps)
 	    {
@@ -541,7 +546,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 	        }
 	        return null;
 	    }
-	    
+	 
 	    public Void stopLocationUpdates()
 	    {
 	        GPSTracker gps = new GPSTracker(this);
@@ -552,11 +557,63 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 	    @Override
 		public void onConnectionFailed(ConnectionResult arg0) {
 	    		//do stuff
+        	notUpdated = true;
+        	// Notify of no location service
+        	AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+       	 
+			// set title
+			alertDialogBuilder.setTitle(getResources().getString(R.string.no_gps_toast_title));
+			alertDialogBuilder.setMessage("Error: \n" + arg0);
+			// set dialog message
+			alertDialogBuilder
+				.setCancelable(false)
+				.setNeutralButton("Okay",new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,int id) {
+						dialog.cancel();
+					}
+				});
+ 
+				// create alert dialog
+				AlertDialog alertDialog = alertDialogBuilder.create();
+ 
+				// show it
+				alertDialog.show();
 		}
 
 		@Override
 		public void onConnected(Bundle arg0) {
-	        getNewLocation();
+			
+	        url = updateLatLong();
+    		if(url != null){
+    			new PostTask().execute(url);
+    		} else {
+    			System.out.println("There was an error getting location. URL was null.");
+    			
+    			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+              	 
+    			// set title
+    			alertDialogBuilder.setTitle(getResources().getString(R.string.no_gps_toast_title));
+    			alertDialogBuilder.setMessage(getResources().getString(R.string.no_gps_toast_message));
+    			// set dialog message
+    			alertDialogBuilder
+    				.setCancelable(false)
+    		/*		.setPositiveButton("Go to Location Settings", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+						}
+					}) */
+    				.setNeutralButton("Okay",new DialogInterface.OnClickListener() {
+    					public void onClick(DialogInterface dialog,int id) {
+    						dialog.cancel();
+    					}
+    				});
+     
+    				// create alert dialog
+    				AlertDialog alertDialog = alertDialogBuilder.create();
+     
+    				// show it
+    				alertDialog.show();
+    		}
 	        //do other stuff
 		}
 
@@ -625,7 +682,9 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     }
 
     public String updateLatLong() {
-    	Location location = getFusedLocation();
+     	
+    	//Location location = getFusedLocation();
+    	Location location = getCurrentLocation();
     	if(location != null){
 		      lat = (double) (location.getLatitude());
 		      lng = (double) (location.getLongitude());
@@ -794,6 +853,11 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         			// set dialog message
         			alertDialogBuilder
         				.setCancelable(false)
+        		/*		.setPositiveButton("Go to Location Settings", new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+							}
+						})  */
         				.setNeutralButton("Okay",new DialogInterface.OnClickListener() {
         					public void onClick(DialogInterface dialog,int id) {
         						dialog.cancel();
@@ -856,7 +920,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     	if (CheckForDataConnection(getBaseContext()) == false){
 			Toast.makeText(getBaseContext(), "You do not currently have data connection.", Toast.LENGTH_LONG).show();
 		} else {
-    	url = getLocation();
+    	url = updateLatLong();
     	new PostTask().execute(url);
 		}
     }
