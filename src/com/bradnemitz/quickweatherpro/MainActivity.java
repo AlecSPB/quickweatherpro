@@ -108,7 +108,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     static String summary_minutely;
     static String summary_hourly;
     static String summary_daily;
-    static String current_city = "current location";
+    static String current_city = "Quick Weather Pro";
     static int temp_int;
     static float current_humidity_f;
     static float current_humidity_percent;
@@ -130,9 +130,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     static boolean notUpdated = true;
 
     
-    // url to make request - actually set in updateLatLong method
-    private static String url;
-     
     private static final String TAG_TIMEZONE = "timezone";
     private static final String TAG_CURRENTLY = "currently";
     private static final String TAG_CURRENTLY_SUMMARY = "summary";
@@ -185,6 +182,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 //    private static final String TAG_DAILY_HUMIDITY = "humidity";
 //    private static final String TAG_DAILY_PRESSURE = "pressure";
 //    private static final String TAG_DAILY_OZONE = "ozone";
+
     
     // JSONArray
     static JSONArray hourly_array = null;
@@ -288,12 +286,14 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
  			  InfoMethods.storeInfo(vars);
  			  retrieveInfo(vars);
  			  
- 			   /* PRETTY SURE YOU'RE NOT USING THIS EVER AGAIN.
- 			    * 
- 		 		String url=params[0];
-   		     	ParseJSON(url); 
- 			    */
- 			  
+ 			  runOnUiThread(new Runnable(){
+ 				  @Override
+ 				  public void run(){
+ 		 			  getActionBar().setTitle(current_city);
+
+ 				  }
+ 			  });
+
  		      updateUI();
  		      
  		      notUpdated = false;
@@ -364,34 +364,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
 		@Override
 		public void onConnected(Bundle arg0) {
-			
-	        url = updateLatLong();
-    		if(url != null){
-    			new PostTask().execute(url);
-    		} else {
-    			System.out.println("There was an error getting location. URL was null.");
-    			
-    			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-              	 
-    			// set title
-    			alertDialogBuilder.setTitle(getResources().getString(R.string.no_gps_toast_title));
-    			alertDialogBuilder.setMessage(getResources().getString(R.string.no_gps_toast_message));
-    			// set dialog message
-    			alertDialogBuilder
-    				.setCancelable(false)
-    				.setNeutralButton("Okay",new DialogInterface.OnClickListener() {
-    					public void onClick(DialogInterface dialog,int id) {
-    						dialog.cancel();
-    					}
-    				});
-     
-    				// create alert dialog
-    				AlertDialog alertDialog = alertDialogBuilder.create();
-     
-    				// show it
-    				alertDialog.show();
-    		}
-	        //do other stuff
+			new PostTask().execute();
 		}
 
 		@Override
@@ -400,6 +373,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 		}
     
     public void updateUI(){
+    	   	    	
         Fragment fragment = new FragmentMaker();
         Bundle args = new Bundle();
         args.putInt(FragmentMaker.NAV_INDEX, i);
@@ -410,99 +384,43 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     }
     
     public void retrieveInfo(SharedPreferences vars){
+    	current_city = vars.getString("current_city", "Unknown");
 		current_icon = vars.getString("current_icon", null); ///////////////DEFAULT VALUE SHOULD PROBABLY NOT BE NULL. IDIOT.
 		current_summary = vars.getString("current_summary", "No data.");
-		temp = vars.getString("temp", "??"); ///////////////REALLY?? DEFAULT VALUE OF TEMP IS 0? DON'T YOU THINK THAT'S KINDA BAD?
+		temp = vars.getString("temp", "??");
 		summary_minutely = vars.getString("summary_minutely", "No data.");
 		summary_hourly = vars.getString("summary_hourly", "No data.");
-		summary_daily = vars.getString("summary_daily", "No data.");		
-    }
-    
-    /////////
-    //You're going to get rid of this method. You can do better.
-    /////////
-    public String updateLatLong() {
-    	
-    	LocationMethods.updateCurrentLocation(this);     	
-    	Location location = LocationMethods.getCurrentLocation();
-    	if(location != null){
-		      lat = (double) (location.getLatitude());
-		      lng = (double) (location.getLongitude());
-		      SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-		      unitPref = sharedPref.getString("units_selection", "us");
-		      url = "https://api.forecast.io/forecast/317e87f882c890e30f4a5e9b3c05c7c0/" + lat + "," + lng + "?units=" + unitPref;
-		      System.out.println("Lat: " + lat);
-		      System.out.println("Long: " + lng);
-		      System.out.println("url: " + url);
-		      
-		      
-    
-	      
-	      //get current city
-	      Geocoder gcd = new Geocoder(getBaseContext(), Locale.getDefault());
-	      List<Address> addresses = null;
-		try {
-			addresses = gcd.getFromLocation(lat, lng, 1);
-		} catch (IOException e) {
-			
-			e.printStackTrace();
-		}
-	      if (addresses != null) {
-	    	  try{
-	          current_city = addresses.get(0).getLocality();
-	          System.out.println(current_city);
-	  		  getActionBar().setTitle(current_city);
-	    	  } catch (NullPointerException e) {
-	    		  //There's an error! Do something
-	    	  } catch (IndexOutOfBoundsException i) {
-	    		  //Different error! Oh no!
-	      	  }
-	    	  
-	      } else {
-	    	  current_city = "Could not find city name";
-	      }
-	      
-    } else {
-    	url = null;
-		System.out.println("fused location was null. for no good reason.");
-  	}
-      
-      return url;
-
+		summary_daily = vars.getString("summary_daily", "No data.");
+		/*
+		 * Here is where you'd retrieve all the strings you stored in InfoMethods.
+		 */
     }
     
 	@Override
 	public void onLocationChanged(Location location) {
-
+    	//empty
 	}
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-      //Do something?
-
+    	//empty
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-      Toast.makeText(this, "Enabled new provider " + provider,
-          Toast.LENGTH_SHORT).show();
-
+    	//empty
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-
+    	//empty
     }
-        
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
        MenuInflater inflater = getMenuInflater();
        inflater.inflate(R.menu.main, menu);
-       return super.onCreateOptionsMenu(menu);
-        
-        
-        
+       return super.onCreateOptionsMenu(menu);  
     }
 
     @Override
@@ -550,46 +468,25 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     				// show it
     				alertDialog.show();
         		
-        		    		} else {
-        		    			
-                url = updateLatLong();
-                
-                if(url == null){
-                	// Notify of no location service
-                	AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-               	 
-        			// set title
-        			alertDialogBuilder.setTitle(getResources().getString(R.string.no_gps_toast_title));
-        			alertDialogBuilder.setMessage(getResources().getString(R.string.no_gps_toast_message));
-        			// set dialog message
-        			alertDialogBuilder
-        				.setCancelable(false)
-        				.setNeutralButton("Okay",new DialogInterface.OnClickListener() {
-        					public void onClick(DialogInterface dialog,int id) {
-        						dialog.cancel();
-        					}
-        				});
-         
-        				// create alert dialog
-        				AlertDialog alertDialog = alertDialogBuilder.create();
-         
-        				// show it
-        				alertDialog.show();
-                } else {
-        			
-                	
+        	} else {
+        		/*
+        		 * This should be the part that keeps you from updating too quickly.
+        		 * Right now it doesn't work.
+        		 * Fix it somehow?
+        		 * 
+        		 */
         		    Calendar cal = Calendar.getInstance();
         		    if(timeZone != null) {
 	                    TimeZone tz = TimeZone.getTimeZone(timeZone);
 	                    cal.setTimeZone(tz);
         		    }
+        		    
                     cal.setTimeInMillis(System.currentTimeMillis());
                     Date timeNow = cal.getTime();
                     long timeNow_l = timeNow.getTime();
                 	
                 	if(timeNow_l < (lastUpdateTime_l + 300000)){
-            			
-            			
+            			           			
             			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
             	 
             				// set title
@@ -611,10 +508,8 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
             					alertDialog.show();
             			
                     } else { 
-                		new PostTask().execute(url);
+                		new PostTask().execute();
                     }
-                }
-                
     		}
             return true;
         default:
@@ -626,8 +521,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     	if (CheckForDataConnection(getBaseContext()) == false){
 			Toast.makeText(getBaseContext(), "You do not currently have data connection.", Toast.LENGTH_LONG).show();
 		} else {
-    	url = updateLatLong();
-    	new PostTask().execute(url);
+			new PostTask().execute();
 		}
     }
     
@@ -695,6 +589,11 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         mDrawerLayout.closeDrawer(mDrawerList);
     }
 
+    /*
+     * I don't understand why this is here.
+     *
+     * And nothing bad seems to happen when I get rid of it. So I'll just do that.
+     *
     @Override
     public void setTitle(CharSequence title) {
     	if(uiPref.equals("New")){
@@ -705,6 +604,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 	        getActionBar().setTitle(mTitle);
     	}
     }
+    */
 
     /**
      * When using the ActionBarDrawerToggle, you must call it during
@@ -725,8 +625,9 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-    /**
-     * Fragment that appears in the "content_frame", shows a planet
+    /*
+     * This is a MASSIVE and unwieldy section of code for updating the UI fragments.
+     * Make it better.
      */
     public static class FragmentMaker extends Fragment {
         public static final String NAV_INDEX = "index_number";
@@ -1503,18 +1404,20 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         }
     }
     
-    public static boolean CheckForDataConnection(Context _currentContext) {
-        ConnectivityManager conMgr = (ConnectivityManager) _currentContext
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
+    
+      
+    public static boolean CheckForDataConnection(Context currentContext) {
+        ConnectivityManager conMgr = (ConnectivityManager) currentContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo i = conMgr.getActiveNetworkInfo();
-        if (i == null)
+        if (i == null){
             return false;
-        if (!i.isConnected())
+        }else if (!i.isConnected()){
             return false;
-        if (!i.isAvailable())
+        }else if (!i.isAvailable()){
             return false;
-         
-        return true;
+        } else {        
+        	return true;
+        }
     }
     
     public static String ExtractWeekdayFromUNIX(String time, String timeZone){
@@ -1626,8 +1529,9 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         return twelveHour_s;
 
     }
-        
     
+    //ParseJSON is Dead.   
+    /*
     public void ParseJSON(String url){
     	System.out.println("Starting to parse JSON");
     	// Creating JSON Parser instance
@@ -1856,6 +1760,8 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     	
     }
 
+    */
+    
 	public static class SettingsFragment extends PreferenceFragment {
 	    @Override
 		    public void onCreate(Bundle savedInstanceState) {

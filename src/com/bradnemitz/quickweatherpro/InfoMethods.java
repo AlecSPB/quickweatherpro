@@ -1,9 +1,14 @@
 package com.bradnemitz.quickweatherpro;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.preference.PreferenceManager;
 
@@ -15,6 +20,7 @@ public class InfoMethods {
 
 	Context mContext;
 	
+	static String current_city;	
 	static String current_icon;
 	static String temp;
 	static int temp_int;
@@ -36,6 +42,8 @@ public static void updateFIO(Context mContext){
 	if(location != null){
 	    lat = (double) (location.getLatitude());
 	    lng = (double) (location.getLongitude());
+	    
+	    getCityName(mContext, lat, lng);
 		
 	    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
 	    String unitPref = sharedPref.getString("units_selection", "us");
@@ -72,26 +80,50 @@ public static void updateFIO(Context mContext){
 	    summary_minutely = FIOR.getMinutely().getValue("summary");
 	    summary_hourly = FIOR.getHourly().getValue("summary");
 	    summary_daily = FIOR.getDaily().getValue("summary");
+	    /*
+	     * Add ALL the other strings you want to grab here.
+	     */
 	    
-	    System.out.println("Curret Icon: " + current_icon);
-	    System.out.println("Current Temp: " + temp);
-	    System.out.println("Current Summary: " + current_summary);
-	    System.out.println("M. Summary: " + summary_minutely);
-	    System.out.println("H. Summary: " + summary_hourly);
-	    System.out.println("D. Summary: " + summary_daily);
 	} else {
 		//Location was null. Do something about it.
 	}
 }
 
+public static void getCityName(Context mContext, double lat, double lng){
+	//get current city
+    Geocoder gcd = new Geocoder(mContext, Locale.getDefault());
+    List<Address> addresses = null;
+    try {
+		addresses = gcd.getFromLocation(lat, lng, 1);
+    } catch (IOException e) {
+		
+		e.printStackTrace();
+    }
+    if (addresses != null) {
+  	  try{
+        current_city = addresses.get(0).getLocality();
+        System.out.println(current_city);
+  	  } catch (NullPointerException e) {
+  		  //There's an error! Do something
+  	  } catch (IndexOutOfBoundsException i) {
+  		  //Different error! Oh no!
+    	  }
+    }
+}
+
+
 public static void storeInfo(SharedPreferences vars) {
     SharedPreferences.Editor prefEditor = vars.edit();
+    prefEditor.putString("current_city", current_city);
 	prefEditor.putString("current_icon", current_icon);    
 	prefEditor.putString("current_summary", current_summary);
 	prefEditor.putString("temp", temp);
 	prefEditor.putString("summary_minutely", summary_minutely);
 	prefEditor.putString("summary_hourly", summary_hourly);
 	prefEditor.putString("summary_daily", summary_daily);
+	/*
+	 * Store ALL the other strings you grabbed here.
+	 */
     prefEditor.commit(); 
 }
 
