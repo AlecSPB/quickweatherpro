@@ -27,18 +27,15 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
-import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-//import android.provider.Settings;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -66,7 +63,6 @@ import com.bradnemitz.quickweatherpro.locationutils.*;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 
 public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener  {
@@ -84,8 +80,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     private CharSequence mTitle;
     private String[] mNavTitles;
     
-    private LocationManager locationManager;
-    private String provider;
+
     private double lng;
     private double lat;
     private static String unitPref;
@@ -162,7 +157,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     private static final String TAG_HOURLY_PRECIPINTENSITY = "precipIntensity";
     private static final String TAG_HOURLY_PRECIPTYPE = "precipType";
     private static final String TAG_HOURLY_TEMP = "temperature";
-    private static final String TAG_HOURLY_VISIBILITY = "visibility";
+//    private static final String TAG_HOURLY_VISIBILITY = "visibility";
 //    private static final String TAG_HOURLY_DEWPOINT = "dewPoint";
 //    private static final String TAG_HOURLY_CLOUDCOVER = "cloudCover";
 //    private static final String TAG_HOURLY_HUMIDITY = "humidity";
@@ -235,11 +230,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
             public void onDrawerClosed(View view) {
             	if(uiPref.equals("New")){
             		getActionBar().setTitle(current_city);
-            	/*	if(userOrGPS == false){
-            			getActionBar().setSubtitle(getResources().getString(R.string.gps_location));
-            		} else {
-            			getActionBar().setSubtitle(getResources().getString(R.string.user_location));
-            		} */
             	} else {
             		getActionBar().setTitle(mTitle);
             	}
@@ -249,11 +239,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
             public void onDrawerOpened(View drawerView) {
             	if(uiPref.equals("New")){
             		getActionBar().setTitle(current_city);
-            /*		if(userOrGPS == false){
-            			getActionBar().setSubtitle(getResources().getString(R.string.gps_location));
-            		} else {
-            			getActionBar().setSubtitle(getResources().getString(R.string.user_location));
-            		} */
             	} else {
             		getActionBar().setTitle(mDrawerTitle);
             	}
@@ -273,43 +258,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         }
         if (CheckForDataConnection(getBaseContext()) == false){
 			Toast.makeText(getBaseContext(), getResources().getString(R.string.no_data_toast_title), Toast.LENGTH_LONG).show();
-		} else {
-		
-		/*old url/location	
-        url = getLocation();
-        */
-		
-		/*
-		
-		url = updateLatLong();
-			
-		System.out.println("Tried it with fused locastion");
-		
-        if(url == null){
-        	notUpdated = true;
-        	// Notify of no location service
-        	AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-       	 
-			// set title
-			alertDialogBuilder.setTitle(getResources().getString(R.string.no_gps_toast_title));
-			alertDialogBuilder.setMessage(getResources().getString(R.string.no_gps_toast_message));
-			// set dialog message
-			alertDialogBuilder
-				.setCancelable(false)
-				.setNeutralButton("Okay",new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog,int id) {
-						dialog.cancel();
-					}
-				});
- 
-				// create alert dialog
-				AlertDialog alertDialog = alertDialogBuilder.create();
- 
-				// show it
-				alertDialog.show();
-        } else {
-        		new PostTask().execute(url);
-        } */
 		}
         
     }
@@ -334,15 +282,18 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
  		
  		   @Override
  		   protected String doInBackground(String... params) {
- 			             
-
- 			   
- 		      String url=params[0];
- 		      
- 		      System.out.println("GOT IT: " + url);
- 		      
- 		      ParseJSON(url);
- 		      
+ 			  
+ 			  SharedPreferences vars = getSharedPreferences("Variables", 0);  
+ 			  InfoMethods.updateFIO(getBaseContext());
+ 			  InfoMethods.storeInfo(vars);
+ 			  retrieveInfo(vars);
+ 			  
+ 			   /* PRETTY SURE YOU'RE NOT USING THIS EVER AGAIN.
+ 			    * 
+ 		 		String url=params[0];
+   		     	ParseJSON(url); 
+ 			    */
+ 			  
  		      updateUI();
  		      
  		      notUpdated = false;
@@ -361,61 +312,11 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
  		  protected void onPostExecute(String result) {
  		      super.onPostExecute(result);
  		      pd.dismiss();
- 		      //getHourlyValuesTest();
  		    
  		   }
   }			
    
-    
-   /* 
-	public String getLocation(){
-		
-		String newUrl = null;
-		
-  		if(userOrGPS == false){
-  	    	// Get the location manager
-  	        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-  	        // Define the criteria how to select the locatioin provider -> use
-  	        // default
-  	        Criteria criteria = new Criteria();
-  	        provider = locationManager.getBestProvider(criteria, false);
-  	        System.out.println(provider);
-  	        Location location = locationManager.getLastKnownLocation(provider);
-  	        System.out.println(location);
-
-
-  	        // Initialize the location fields
-  	        if (location != null) {
-  	          System.out.println("Provider " + provider + " has been selected.");
-  	          newUrl = updateLatLong();
-  	        } else {
-  	        	//do nothing, returned string is null
-  	        	//provide check in other place for null url before calling
-  	        	//a new posttask
-  	        }
-		} else {
-			
-			SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-		    userSetLocation = sharedPref.getString("units_selection", "us");
-		    
-			Location location = new Location (userSetLocation);
-  	        System.out.println(location);
-
-  	        // Initialize the location fields
-  	        if (location != null) {
-  	          newUrl = updateLatLong();
-  	        }
-			
-			
-		}
-		
-	    return newUrl; 			
-
-    } */
-    
-
-    /* //////START COPIED LOCATION METHODS
-    
+      
     /* Request updates at startup */ 
     @Override
     protected void onResume() {
@@ -423,136 +324,17 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     	if(gps == null){
     		gps = new GPSTracker(this);
     	}
-    	setupLocationUpdates(gps);
+    	LocationMethods.setupLocationUpdates(gps, this);
         super.onResume();
         
     	}
     	
-    	/*OLD LOCATION CODE
-      super.onResume();
-      if(provider != null){
-    	  locationManager.requestLocationUpdates(provider, 400, 1, this);
-      } else {
-    	  //DO SOMETHING SINCE YOU DON'T HAVE LOCATION
-    	  Toast.makeText(this, "AIRPLANE MODE DEATH AVOIDED.", Toast.LENGTH_LONG).show();
-      } 
-    } */
-
-    /* Remove the locationlistener updates when Activity is paused */
+    /* Remove the location listener updates when Activity is paused */
     @Override
     protected void onPause() {
     	gps.stopUsingGPS();
-
     	super.onPause();
 	}
-   /*OLD LOCATION CODE
-      super.onPause();
-      if(provider != null){
-    	  locationManager.removeUpdates(this);
-      } else {
-    	  Toast.makeText(this, "EXIT DEATH AVOIDED.", Toast.LENGTH_LONG).show();
-      }
-    } */
-    
-	public Location getFusedLocation()
-	{
-        Location location = null;
-		location = getLastFusedLocation();
-		return location;
-	}
-	
-	
-	public Location getCurrentLocation()
-    {
-        Location location = null;
-
-        LocationManager mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE); 
-        final Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.NO_REQUIREMENT);  
-        String provider = mlocManager.getBestProvider(criteria, true);
-        System.out.println("best provider is " + provider);
-        String gpsprovider = "gps";
-        if(provider == null)
-        {
-        	return location;
-        }
-        
-        if(provider.equals(gpsprovider))
-        {
-        	boolean hasgpsloc = true;
-	        Date now = new Date();
-	        Long now_ms = now.getTime();
-	        Long last_ms;
-	        Long diff_ms = null;
-        	try
-        	{
-		        location = mlocManager.getLastKnownLocation(provider);     
-		        last_ms = location.getTime();
-		        diff_ms = now_ms - last_ms;
-        	}
-        	catch(Exception e)
-        	{
-        		hasgpsloc = false;
-        	}
-        
-        	if(hasgpsloc == false)
-        	{
-		        if(mlocManager.isProviderEnabled("network"))
-	        	{
-		        	location = mlocManager.getLastKnownLocation("network");     
-	        	}
-		        else
-		        {
-		        	location = mlocManager.getLastKnownLocation("passive");     
-		        }
-        	}
-        	else if(diff_ms >= 60000)
-	        {
-		        if(mlocManager.isProviderEnabled("network"))
-	        	{
-		        	System.out.println("more than 1 minutes, going to network");
-		        	location = mlocManager.getLastKnownLocation("network");     
-	        	}
-		        else
-		        {
-		        	System.out.println("more than 1 minutes, network, not enabled");
-			        location = mlocManager.getLastKnownLocation(provider);     
-		        }
-	        }
-        }
-        else
-        {
-        	System.out.println("not gps");
-	        location = mlocManager.getLastKnownLocation(provider);     
-        }
-    		
-        return location;
-    } 
-    
-	 public Void setupLocationUpdates(GPSTracker gps)
-	    {
-	        LocationManager mlocManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);  
-	        if(gps.isGPSEnabled)
-	        {
-		        mlocManager.requestLocationUpdates( LocationManager.GPS_PROVIDER, 0, 0, gps);  
-	        }
-	        else if(gps.isNetworkEnabled)
-	        {
-		        mlocManager.requestLocationUpdates( LocationManager.NETWORK_PROVIDER, 0, 0, gps);  
-	        }
-	        else
-	        {
-		        mlocManager.requestLocationUpdates( LocationManager.PASSIVE_PROVIDER, 0, 0, gps);  
-	        }
-	        return null;
-	    }
-	 
-	    public Void stopLocationUpdates()
-	    {
-	        GPSTracker gps = new GPSTracker(this);
-	        gps.stopUsingGPS();
-	        return null;
-	    }
 	    
 	    @Override
 		public void onConnectionFailed(ConnectionResult arg0) {
@@ -597,11 +379,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     			// set dialog message
     			alertDialogBuilder
     				.setCancelable(false)
-    		/*		.setPositiveButton("Go to Location Settings", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-						}
-					}) */
     				.setNeutralButton("Okay",new DialogInterface.OnClickListener() {
     					public void onClick(DialogInterface dialog,int id) {
     						dialog.cancel();
@@ -621,55 +398,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 		public void onDisconnected() {
 	       //do stuff here too
 		}
-		
-		/**
-	     * Verify that Google Play services is available before making a request.
-	     *
-	     * @return true if Google Play services is available, otherwise false
-	     */
-	    private boolean servicesConnected() {
-
-	        // Check that Google Play services is available
-	        int resultCode =
-	                GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-
-	        // If Google Play services is available
-	        if (ConnectionResult.SUCCESS == resultCode) {
-	            // Continue
-	            return true;
-	        // Google Play services was not available for some reason
-	        } else {
-	            // Display an error dialog
-	            return false;
-	        }
-	    }
-
-	    /**
-	     * Invoked by the "Get Location" button.
-	     *
-	     * Calls getLastLocation() to get the current location
-	     *
-	     */
-	    public void getNewLocation() {
-	        if (servicesConnected()) {
-	        	if(mLocationClient.isConnected())
-	        	{
-		            mFusedLocation = mLocationClient.getLastLocation();
-	        	}
-	        }
-	    }
-	    
-	    public Location getLastFusedLocation()
-	    {
-	    	return mFusedLocation;
-	    }
-	    
-	    public LocationClient getLocationClient()
-	    {
-	    	return mLocationClient;
-	    }
-	
-    
     
     public void updateUI(){
         Fragment fragment = new FragmentMaker();
@@ -680,11 +408,23 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
     }
-
+    
+    public void retrieveInfo(SharedPreferences vars){
+		current_icon = vars.getString("current_icon", null); ///////////////DEFAULT VALUE SHOULD PROBABLY NOT BE NULL. IDIOT.
+		current_summary = vars.getString("current_summary", "No data.");
+		temp = vars.getString("temp", "??"); ///////////////REALLY?? DEFAULT VALUE OF TEMP IS 0? DON'T YOU THINK THAT'S KINDA BAD?
+		summary_minutely = vars.getString("summary_minutely", "No data.");
+		summary_hourly = vars.getString("summary_hourly", "No data.");
+		summary_daily = vars.getString("summary_daily", "No data.");		
+    }
+    
+    /////////
+    //You're going to get rid of this method. You can do better.
+    /////////
     public String updateLatLong() {
-     	
-    	//Location location = getFusedLocation();
-    	Location location = getCurrentLocation();
+    	
+    	LocationMethods.updateCurrentLocation(this);     	
+    	Location location = LocationMethods.getCurrentLocation();
     	if(location != null){
 		      lat = (double) (location.getLatitude());
 		      lng = (double) (location.getLongitude());
@@ -694,6 +434,8 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 		      System.out.println("Lat: " + lat);
 		      System.out.println("Long: " + lng);
 		      System.out.println("url: " + url);
+		      
+		      
     
 	      
 	      //get current city
@@ -706,17 +448,10 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 			e.printStackTrace();
 		}
 	      if (addresses != null) {
-	         // System.out.println(addresses.get(0).getLocality());
 	    	  try{
 	          current_city = addresses.get(0).getLocality();
-	          //current_city = current_city.toUpperCase();
 	          System.out.println(current_city);
 	  		  getActionBar().setTitle(current_city);
-		  	/*	if(userOrGPS == false){
-					getActionBar().setSubtitle("GPS Location");
-				} else {
-					getActionBar().setSubtitle("User Set Location");
-				} */
 	    	  } catch (NullPointerException e) {
 	    		  //There's an error! Do something
 	    	  } catch (IndexOutOfBoundsException i) {
@@ -738,14 +473,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     
 	@Override
 	public void onLocationChanged(Location location) {
-		///WHO CARES. NO ONE. It just needs to update onStart / Manually
-		/*double oldLat = lat;
-		double oldLng = lng;
-		updateLatLong(location);
-		if ( Math.abs(lat - oldLat) > 1 || Math.abs(lng - oldLng) > 1){
-	        url = getLocation();
-	        new PostTask().execute(url);
-		} */
+
 	}
 
     @Override
@@ -763,13 +491,9 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
     @Override
     public void onProviderDisabled(String provider) {
-      //Toast.makeText(this, "Disabled provider " + provider,
-       //   Toast.LENGTH_SHORT).show();
+
     }
-    
-    ///////END LOCATION STUFF 
-    
-    
+        
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -780,19 +504,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         
         
     }
-
-    /* Called whenever we call invalidateOptionsMenu() */
-  /*  @Override
-      public boolean onPrepareOptionsMenu(Menu menu) {
-        // If the nav drawer is open, hide action items related to the content view
-        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-        try{
-        menu.findItem(R.id.action_refresh).setVisible(!drawerOpen);
-        } catch (Exception e) {
-        	e.printStackTrace();
-        }
-        return super.onPrepareOptionsMenu(menu);
-    } */
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -853,11 +564,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         			// set dialog message
         			alertDialogBuilder
         				.setCancelable(false)
-        		/*		.setPositiveButton("Go to Location Settings", new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int which) {
-								startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-							}
-						})  */
         				.setNeutralButton("Okay",new DialogInterface.OnClickListener() {
         					public void onClick(DialogInterface dialog,int id) {
         						dialog.cancel();
@@ -930,10 +636,8 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            selectItem(position); /************************I think I can delete this to remove fragment switching. 
-            ***************BUT you might actually want to use fragment depending on how involved you make this.
-            */
-            
+            selectItem(position); 
+                       
             //HOW THE DRAWER SWITCHER IS WORKING
             ////////////////////////////////////
             //onItemClick calls selectItem, passing the variable 'position'
@@ -981,11 +685,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         	colorDrawable.setColor(Color.parseColor("#222222"));
         	getActionBar().setBackgroundDrawable(colorDrawable);
         	getActionBar().setTitle(current_city);
-    	/*	if(userOrGPS == false){
-    			getActionBar().setSubtitle("GPS Location");
-    		} else {
-    			getActionBar().setSubtitle("User Set Location");
-    		} */
         } else {        
         	getActionBar().setBackgroundDrawable(colorDrawable);
         }
@@ -1001,11 +700,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     	if(uiPref.equals("New")){
     		//Set actionbar to location
     		getActionBar().setTitle(current_city);
-    	/*	if(userOrGPS == false){
-    			getActionBar().setSubtitle("GPS Location");
-    		} else {
-    			getActionBar().setSubtitle("User Set Location");
-    		} */
     	} else {
 	        mTitle = title;
 	        getActionBar().setTitle(mTitle);
@@ -1049,11 +743,10 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
             if(uiPref.equals("Original")){	
 		        if (i == 0){
 		        	rootView = inflater.inflate(R.layout.fragment_summary, container, false);
-		           // ((TextView) rootView.findViewById(R.id.text_location)).setText(current_city);
 		            SpannableString content = new SpannableString(current_city);
 		            content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
 		            ((TextView) rootView.findViewById(R.id.text_location)).setText(content);
-		            ((TextView) rootView.findViewById(R.id.text_summary_now)).setText(current_summary + "; " + temp_int + "°");
+		            ((TextView) rootView.findViewById(R.id.text_summary_now)).setText(current_summary + "; " + temp + "°");
 		            ((TextView) rootView.findViewById(R.id.text_summary_minutely)).setText(summary_minutely);
 		            ((TextView) rootView.findViewById(R.id.text_summary_hourly)).setText(summary_hourly);
 		            ((TextView) rootView.findViewById(R.id.text_summary_daily)).setText(summary_daily);
@@ -1069,7 +762,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 		        	            	
 		            ((TextView) rootView.findViewById(R.id.text_current_summary)).setText(Html.fromHtml("<b>Summary:</b> " + current_summary));
 		            ((TextView) rootView.findViewById(R.id.text_current_precip)).setText(Html.fromHtml("<b>Precip. Intensity:</b> " + current_precipIntensity));
-		            ((TextView) rootView.findViewById(R.id.text_current_temp)).setText(Html.fromHtml("<b>Temperature:</b> " + temp_int + "°"));
+		            ((TextView) rootView.findViewById(R.id.text_current_temp)).setText(Html.fromHtml("<b>Temperature:</b> " + temp + "°"));
 		            ((TextView) rootView.findViewById(R.id.text_current_dewpoint)).setText(Html.fromHtml("<b>Dew Point:</b> " + current_dewPoint_int + "°"));
 		            if(unitPref.equals("us")){
 		            	((TextView) rootView.findViewById(R.id.text_current_windspeed)).setText(Html.fromHtml("<b>Wind Speed:</b> " + current_windSpeed + " mph"));
@@ -1326,7 +1019,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 	        			((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.unknown);
 	        		}
 		       
-		            ((TextView) rootView.findViewById(R.id.text_now_temp)).setText(temp_int + "°");
+		            ((TextView) rootView.findViewById(R.id.text_now_temp)).setText(temp + "°");
 		            ((TextView) rootView.findViewById(R.id.text_summary_now)).setText(current_summary);
 		            ((TextView) rootView.findViewById(R.id.text_summary_minutely)).setText(summary_minutely);
 		            ((TextView) rootView.findViewById(R.id.text_summary_hourly)).setText(summary_hourly);
@@ -1343,7 +1036,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 		        	            	
 		            ((TextView) rootView.findViewById(R.id.text_current_summary)).setText(current_summary);
 		            ((TextView) rootView.findViewById(R.id.text_current_precip)).setText(current_precipIntensity);
-		            ((TextView) rootView.findViewById(R.id.text_current_temp)).setText(temp_int + "°");
+		            ((TextView) rootView.findViewById(R.id.text_current_temp)).setText(temp + "°");
 		            ((TextView) rootView.findViewById(R.id.text_current_dewpoint)).setText(current_dewPoint_int + "°");
 		            if(unitPref.equals("us")){
 		            	((TextView) rootView.findViewById(R.id.text_current_windspeed)).setText(current_windSpeed + " mph");
@@ -1941,7 +1634,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     	JSONParser jParser = new JSONParser();
     	System.out.println("Created a new JSONParser");
     	// getting JSON string from URL
-    	//JSONObject json = jParser.getJSONFromUrl(url);
     	
         
 		SharedPreferences prefs = getSharedPreferences("MyWigdetPreferences", 0);  
@@ -1949,12 +1641,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         SharedPreferences.Editor prefEditor = prefs.edit();  
         		prefEditor.putString("TEST", "SUCCESS!?!");    
         		prefEditor.commit(); 
-        	/*	
-        		String failed = "FAILED TO UPDATE.";
-        		String nowSummary;
-        		System.out.println("Getting from prefs");		
-        		nowSummary = prefs.getString("widgetVerse", failed);
-        		System.out.println(nowSummary); */
     	
     			JSONObject c = jParser.getJSONFromUrl(url);
 
@@ -2170,8 +1856,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     	
     }
 
-
-
 	public static class SettingsFragment extends PreferenceFragment {
 	    @Override
 		    public void onCreate(Bundle savedInstanceState) {
@@ -2179,7 +1863,5 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 		        // Load the preferences from an XML resource
 		        addPreferencesFromResource(R.xml.fragment_settings);
 		    }
-	   
 		}
-
 }
