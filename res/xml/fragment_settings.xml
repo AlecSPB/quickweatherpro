@@ -10,6 +10,7 @@
             android:entries="@array/units"
             android:entryValues="@array/unitsValues"            
         />
+    <!-- OLD UI IS DEAD
     <ListPreference
             android:key="ui_selection"
             android:title="UI"
@@ -17,7 +18,7 @@
             android:defaultValue="New"
             android:entries="@array/ui"
             android:entryValues="@array/uiValues"            
-        />
+        />  -->
      <CheckBoxPreference
             android:key="userLocation"
             android:defaultValue="false"

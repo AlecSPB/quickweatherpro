@@ -103,9 +103,12 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     static String current_humidity;
     static String current_pressure;
     static String current_visibility;
+    static String current_time;
+    static String current_precipProbability;
+    static String current_precipType;
     static String current_ozone;
     static String windBearing; 
-    static String summary_minutely;
+    static String minutely_summary;
     static String summary_hourly;
     static String summary_daily;
     static String current_city = "Quick Weather Pro";
@@ -120,7 +123,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     Date lastUpdateTime;
     long lastUpdateTime_l;
     
-    static String temp;
+    static String current_temperature;
     static String percent;
     
     static int i = 0;
@@ -248,6 +251,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         uiPref = sharedPref.getString("ui_selection", "New");
+        unitPref = sharedPref.getString("unitPref", "us");
         userOrGPS = sharedPref.getBoolean("userLocation", false);
         
 
@@ -385,12 +389,28 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     
     public void retrieveInfo(SharedPreferences vars){
     	current_city = vars.getString("current_city", "Unknown");
-		current_icon = vars.getString("current_icon", null); ///////////////DEFAULT VALUE SHOULD PROBABLY NOT BE NULL. IDIOT.
+		current_icon = vars.getString("current_icon", "Unknown"); ///////////////DEFAULT VALUE SHOULD PROBABLY NOT BE NULL. IDIOT.
 		current_summary = vars.getString("current_summary", "No data.");
-		temp = vars.getString("temp", "??");
-		summary_minutely = vars.getString("summary_minutely", "No data.");
+		current_temperature = vars.getString("current_temperature", "??");
+		minutely_summary = vars.getString("minutely_summary", "No data.");
 		summary_hourly = vars.getString("summary_hourly", "No data.");
 		summary_daily = vars.getString("summary_daily", "No data.");
+		
+			    
+	    current_time = vars.getString("current_time", "Unknown"); 
+	    current_precipIntensity = vars.getString("current_precipIntensity", "No data.");
+	    current_precipProbability = vars.getString("current_precipProbability", "No data.");
+	    current_precipType = vars.getString("current_precipType", "No data.");
+	    current_dewPoint = vars.getString("current_dewPoint", "No data.");
+	    current_humidity = vars.getString("current_humidity", "No data.");
+	    current_windSpeed = vars.getString("current_windSpeed", "No data.");
+	    current_windBearing = vars.getString("current_windBearing", "No data.");
+	    current_visibility = vars.getString("current_visibility", "No data.");
+	    current_cloudCover = vars.getString("current_cloudCover", "No data.");
+	    current_pressure = vars.getString("current_pressure", "No data.");
+	    current_ozone = vars.getString("current_ozone", "No data.");
+		
+		
 		/*
 		 * Here is where you'd retrieve all the strings you stored in InfoMethods.
 		 */
@@ -547,64 +567,29 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     private void selectItem(int position) {
         // update the main content by replacing fragments
 	    	
-	        Fragment fragment = new FragmentMaker();
-	        Bundle args = new Bundle();
-	        args.putInt(FragmentMaker.NAV_INDEX, position);
-	        fragment.setArguments(args);
-	        FragmentManager fragmentManager = getFragmentManager();
-	    if (position == 4){
-	        fragmentManager.beginTransaction().replace(R.id.content_frame, new SettingsFragment()).commit();
-	    } else {
-	        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-	    }
-        ColorDrawable colorDrawable = new ColorDrawable();
-        if(position == 0){
-        	colorDrawable.setColor(Color.parseColor("#0099CC"));
-        } else if(position == 1){
-        	colorDrawable.setColor(Color.parseColor("#FF8800"));       	
-        } else if(position == 2){
-        	colorDrawable.setColor(Color.parseColor("#669900"));       	
-        } else if(position == 3){
-        	colorDrawable.setColor(Color.parseColor("#CC0000"));
-        } else if(position == 4){
-        	colorDrawable.setColor(Color.parseColor("#9933CC"));
-        }
-        
+        Fragment fragment = new FragmentMaker();
+        Bundle args = new Bundle();
+        args.putInt(FragmentMaker.NAV_INDEX, position);
+        fragment.setArguments(args);
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+    
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        uiPref = sharedPref.getString("ui_selection", "New");
         userOrGPS = sharedPref.getBoolean("userLocation", false);
 
-        
-        if(uiPref.equals("New")){
-        	colorDrawable.setColor(Color.parseColor("#222222"));
-        	getActionBar().setBackgroundDrawable(colorDrawable);
-        	getActionBar().setTitle(current_city);
-        } else {        
-        	getActionBar().setBackgroundDrawable(colorDrawable);
-        }
+        /* PRETTY SURE I DON'T NEED TO SET BACKGROUND COLOR NOW
+        ColorDrawable colorDrawable = new ColorDrawable();
+        colorDrawable.setColor(Color.parseColor("#222222"));
+        getActionBar().setBackgroundDrawable(colorDrawable); */
+        getActionBar().setTitle(current_city);
+ 
 
         // update selected item and title, then close the drawer
         mDrawerList.setItemChecked(position, true);
-        setTitle(mNavTitles[position]);
+        //YOU DON'T SET THE TITLE TO THE NAME ANYMORE.
+        //setTitle(mNavTitles[position]);
         mDrawerLayout.closeDrawer(mDrawerList);
     }
-
-    /*
-     * I don't understand why this is here.
-     *
-     * And nothing bad seems to happen when I get rid of it. So I'll just do that.
-     *
-    @Override
-    public void setTitle(CharSequence title) {
-    	if(uiPref.equals("New")){
-    		//Set actionbar to location
-    		getActionBar().setTitle(current_city);
-    	} else {
-	        mTitle = title;
-	        getActionBar().setTitle(mTitle);
-    	}
-    }
-    */
 
     /**
      * When using the ActionBarDrawerToggle, you must call it during
@@ -641,288 +626,49 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
             i = getArguments().getInt(NAV_INDEX);
             
             if(notUpdated == false){            
-            if(uiPref.equals("Original")){	
-		        if (i == 0){
-		        	rootView = inflater.inflate(R.layout.fragment_summary, container, false);
-		            SpannableString content = new SpannableString(current_city);
-		            content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
-		            ((TextView) rootView.findViewById(R.id.text_location)).setText(content);
-		            ((TextView) rootView.findViewById(R.id.text_summary_now)).setText(current_summary + "; " + temp + "°");
-		            ((TextView) rootView.findViewById(R.id.text_summary_minutely)).setText(summary_minutely);
-		            ((TextView) rootView.findViewById(R.id.text_summary_hourly)).setText(summary_hourly);
-		            ((TextView) rootView.findViewById(R.id.text_summary_daily)).setText(summary_daily);
-		            
-		            TextView t2 = (TextView) rootView.findViewById(R.id.text_summary_forecastio);
-		            t2.setMovementMethod(LinkMovementMethod.getInstance());
-		            
-		
-		            
-		        } else if(i == 1){
-		        	rootView = inflater.inflate(R.layout.fragment_current, container, false);
-		        	
-		        	            	
-		            ((TextView) rootView.findViewById(R.id.text_current_summary)).setText(Html.fromHtml("<b>Summary:</b> " + current_summary));
-		            ((TextView) rootView.findViewById(R.id.text_current_precip)).setText(Html.fromHtml("<b>Precip. Intensity:</b> " + current_precipIntensity));
-		            ((TextView) rootView.findViewById(R.id.text_current_temp)).setText(Html.fromHtml("<b>Temperature:</b> " + temp + "°"));
-		            ((TextView) rootView.findViewById(R.id.text_current_dewpoint)).setText(Html.fromHtml("<b>Dew Point:</b> " + current_dewPoint_int + "°"));
-		            if(unitPref.equals("us")){
-		            	((TextView) rootView.findViewById(R.id.text_current_windspeed)).setText(Html.fromHtml("<b>Wind Speed:</b> " + current_windSpeed + " mph"));
-		                ((TextView) rootView.findViewById(R.id.text_current_visibility)).setText(Html.fromHtml("<b>Visibility:</b> " + current_visibility + " mi"));
-		            } else {
-		                ((TextView) rootView.findViewById(R.id.text_current_windspeed)).setText(Html.fromHtml("<b>Wind Speed:</b> " + current_windSpeed + " kmph"));
-		                ((TextView) rootView.findViewById(R.id.text_current_visibility)).setText(Html.fromHtml("<b>Visibility:</b> " + current_visibility + " km"));
-		            }
-		            ((TextView) rootView.findViewById(R.id.text_current_windbearing)).setText(Html.fromHtml("<b>Wind Bearing:</b> " + current_windBearing + "°"));
-		            ((TextView) rootView.findViewById(R.id.text_current_cloudcover)).setText(Html.fromHtml("<b>Cloud Cover:</b> " + current_cloudcover_percent_int + "%"));
-		            ((TextView) rootView.findViewById(R.id.text_current_humidity)).setText(Html.fromHtml("<b>Humidity:</b> " + current_humidity_percent_int + "%"));
-		            ((TextView) rootView.findViewById(R.id.text_current_pressure)).setText(Html.fromHtml("<b>Pressure:</b> " + current_pressure + " mb"));
-		            ((TextView) rootView.findViewById(R.id.text_current_ozone)).setText(Html.fromHtml("<b>Ozone:</b> " + current_ozone));
-		            
-		            TextView t2 = (TextView) rootView.findViewById(R.id.text_current_forecastio);
-		            t2.setMovementMethod(LinkMovementMethod.getInstance());
-		
-		
-		        } else if(i == 2){
-		        	rootView = inflater.inflate(R.layout.fragment_hourly, container, false);
-		        	String day1 = "notADaySoItAlwaysIsn'tEqualTheFirstTime";
-		        	String oldDay;
-		        	String forecast;
-			        for(int i = 0; i < hourly_array.length(); i++){
-		
-		    	        try {
-		    	    		Object hm1 = hourly_array.get(i);
-		    	    		String time1 = ((JSONObject) hm1).get(TAG_HOURLY_TIME).toString();
-		    	    		String temp1 = ((JSONObject) hm1).get(TAG_HOURLY_TEMP).toString();
-		    	    		int temp_int = (int)Float.parseFloat(temp1);
-		    	    		String chance1 = ((JSONObject) hm1).get(TAG_HOURLY_PRECIPINTENSITY).toString();
-		    	    		Float chance1_f = Float.parseFloat(chance1);
-		    	    		int rainChance_f;
-		    	    		String precipType;
-		    	    		if(chance1_f != 0){
-			    	    		String rainChance = ((JSONObject) hm1).getString(TAG_HOURLY_PRECIPPROB).toString();
-			    	    		rainChance_f = (int)(Float.parseFloat(rainChance) * 100);
-			    	    		precipType = ((JSONObject) hm1).get(TAG_HOURLY_PRECIPTYPE).toString();
-		    	    		} else {
-		    	    			rainChance_f = 0;
-		    	    			precipType = null;
-		    	    		}
-		    	    		
-		    	    		String rain = null;
-		    	    		
-		    	    		if (rainChance_f < 10){
-		    	    			forecast = temp_int + "°, Clear";
-		    	    		} else {
-		    	    		
-			    	    		///CHANGE 'rain' in below things to precipType value gotten from the array
-			    	    		if(chance1_f < 0.002){
-			    	    			rain = "light sprinking";
-			    	    		} else if (chance1_f >= 0.002 && chance1_f < 0.015){
-			    	    			rain = "light sprinkling";
-			    	    		} else if (chance1_f >= 0.015 && chance1_f < 0.08){
-			    	    			rain = "light " + precipType;
-			    	    		} else if (chance1_f >= 0.08 && chance1_f < 0.35){
-			    	    			rain = "moderate " + precipType;
-			    	    		} else if (chance1_f >= 0.35){
-			    	    			rain = "heavy " + precipType;
-			    	    		}
-			    	            forecast =  temp_int + "°, " + rainChance_f + "% chance of " + rain;
-		    	    		}
-			    	    		/*
-			    	    		 * A very rough guide is that a value of 0 corresponds to no precipitation, 0.002 corresponds to very light sprinkling, 
-			    	    		 * 0.017 corresponds to light precipitation, 0.1 corresponds to moderate precipitation, and 0.4 corresponds to very heavy precipitation.
-			    	    		 */
-			    	    		oldDay = day1;
-			    	            day1 = ExtractWeekdayFromUNIX(time1, timeZone).toUpperCase();
-			    	            int dayToCheck = ExtractWeekdayFromUNIX_Int(time1, timeZone);
-			    	            int dayToCheck2 = (dayToCheck - 1)%7;
-			    	            String hour1 = ExtractHourFromUNIX(time1, timeZone);
-			    	            Calendar cal = Calendar.getInstance();
-			    	            TimeZone tz = TimeZone.getTimeZone(timeZone);
-			    	            cal.setTimeZone(tz);
-			    	            cal.setTimeInMillis(System.currentTimeMillis());
-			    	            int current_day = cal.get(Calendar.DAY_OF_WEEK);
-			    	            
-			    	            if (dayToCheck2 == 0){
-			    	            	dayToCheck2 = 7;
-			    	            }
-		
-			    	            String dayToPrint = null;
-			    	        
-			    	        if(current_day == dayToCheck){
-			    	        	dayToPrint = "TODAY";
-			    	        } else if (current_day == dayToCheck2){
-			    	        	dayToPrint = "TOMORROW";
-			    	        } else {
-			    	        	dayToPrint = day1;
-			    	        }
-		    	            
-		    	            if(oldDay.equals(day1)){
-		    	            	//don't do anything
-		    	            } else {
-		    	            	//Print the day
-			    	    		
-			    	    		LinearLayout linearLayout = (LinearLayout) rootView.findViewById(R.id.hourly_layout);
-			    	    				TextView txt2 = new TextView(getActivity());
-			    	    				txt2.setText(dayToPrint);
-			    	    				txt2.setSingleLine(false);
-			    	    				txt2.setId(i);
-			    	    				Typeface myNewFace = Typeface.createFromAsset(getActivity().getAssets(),"fonts/Roboto-BoldItalic.ttf"); 
-			    	    				txt2.setTypeface(myNewFace);
-			    	    				txt2.setGravity(Gravity.CENTER);
-			    	    				txt2.setTextSize(40);
-			    	    				txt2.setPadding(10, 20, 10, 7);
-			    	    				txt2.setTextColor(Color.parseColor("#FFFFFF"));
-			    	    				linearLayout.addView(txt2);
-		    	            }
-		    	    		
-		    	    		
-		    	    		
-		    	    		LinearLayout linearLayout = (LinearLayout) rootView.findViewById(R.id.hourly_layout);
-		    	    				TextView txt1 = new TextView(getActivity());
-		    	    				txt1.setText(Html.fromHtml("<b>" + hour1 + ":</b> &nbsp;" + forecast));
-		    	    				txt1.setSingleLine(false);
-		    	    				txt1.setId(i);
-		    	    				Typeface myNewFace = Typeface.createFromAsset(getActivity().getAssets(),"fonts/Roboto-Light.ttf"); 
-		    	    				txt1.setTypeface(myNewFace);
-		    	    				txt1.setTextSize(18);
-		    	    				txt1.setPadding(15, 7, 10, 7);
-		    	    				txt1.setTextColor(Color.parseColor("#FFFFFF"));
-		    	    				linearLayout.addView(txt1);
-		    	    		
-		
-		    	    		
-		    			} catch (JSONException e) {
-		    				e.printStackTrace();
-		    			}
-			        }
-		            TextView t2 = (TextView) rootView.findViewById(R.id.text_hourly_forecastio);
-		            t2.setMovementMethod(LinkMovementMethod.getInstance());
-		        	
-		        } else if(i == 3){
-		        	rootView = inflater.inflate(R.layout.fragment_daily, container, false);
-		        	
-		        	if(daily_array != null){
-			        for(int i = 0; i < daily_array.length(); i++){
-		
-		    	        try {
-		    	    		Object hm1 = daily_array.get(i);
-		    	    		String time1 = ((JSONObject) hm1).get(TAG_DAILY_TIME).toString();
-		    	    		String tempMax = ((JSONObject) hm1).get(TAG_DAILY_TEMPMAX).toString();
-		    	    		String tempMin = ((JSONObject) hm1).get(TAG_DAILY_TEMPMIN).toString();
-		    	    		//String precipType = ((JSONObject) hm1).get(TAG_DAILY_PRECIPTYPE).toString();
-		    	    		int tempMax_int = (int)Float.parseFloat(tempMax);
-		    	    		int tempMin_int = (int)Float.parseFloat(tempMin);
-		    	    		String daySummary = ((JSONObject) hm1).get(TAG_DAILY_SUMMARY).toString();	    	    		
-		    	    	//	String chance1 = ((JSONObject) hm1).get(TAG_DAILY_PRECIPINTENSITYMAX).toString();
-		    	    	//	Float chance1_f = Float.parseFloat(chance1);
-		    	    		
-		    	    		
-		    	    		/*
-		    	    		 * A very rough guide is that a value of 0 corresponds to no precipitation, 0.002 corresponds to very light sprinkling, 
-		    	    		 * 0.017 corresponds to light precipitation, 0.1 corresponds to moderate precipitation, and 0.4 corresponds to very heavy precipitation.
-		    	    		 */
-		    	    		
-		    	            String day1 = ExtractWeekdayFromUNIX(time1, timeZone).toUpperCase();
-		    	    		//String forecast_time = day1 + ", " + ": " + temp_int + "°; " + rain;
-		    	            
-		    	    		LinearLayout linearLayout = (LinearLayout) rootView.findViewById(R.id.daily_layout);
-		    				TextView txt2 = new TextView(getActivity());
-		    				txt2.setText(day1);
-		    				txt2.setId(i);
-		    				Typeface myNewFace = Typeface.createFromAsset(getActivity().getAssets(),"fonts/Roboto-BoldItalic.ttf"); 
-		    				txt2.setTypeface(myNewFace);
-		    				txt2.setGravity(Gravity.CENTER);
-		    				txt2.setTextSize(32);
-		    				txt2.setPadding(10, 18, 10, 5);
-		    				txt2.setTextColor(Color.parseColor("#FFFFFF"));
-		    				linearLayout.addView(txt2);
-		    	            
-		    	    		
-		    	    		LinearLayout linearLayout2 = (LinearLayout) rootView.findViewById(R.id.daily_layout);
-		    				TextView txt1 = new TextView(getActivity());
-		    				txt1.setText(Html.fromHtml(tempMax_int + "° / " + tempMin_int +  "°<br>" + daySummary));
-		    				txt1.setSingleLine(false);
-		    				txt1.setId(i);
-		    				txt1.setGravity(Gravity.CENTER);
-		    				Typeface myNewFace2 = Typeface.createFromAsset(getActivity().getAssets(),"fonts/Roboto-Light.ttf"); 
-		    				txt1.setTypeface(myNewFace2);
-		    				txt1.setTextSize(20);
-		    				txt1.setPadding(10, 5, 10, 10);
-		    				txt1.setTextColor(Color.parseColor("#FFFFFF"));
-		    				linearLayout2.addView(txt1); 
-		    	    		
-		
-		    			} catch (JSONException e) {
-		    				e.printStackTrace();
-		    			}
-			        }
-		        	} else {
-			    		LinearLayout linearLayout = (LinearLayout) rootView.findViewById(R.id.daily_layout);
-						TextView txt2 = new TextView(getActivity());
-						txt2.setText("Data Missing");
-						txt2.setId(1);
-						Typeface myNewFace = Typeface.createFromAsset(getActivity().getAssets(),"fonts/Roboto-BoldItalic.ttf"); 
-						txt2.setTypeface(myNewFace);
-						txt2.setGravity(Gravity.CENTER);
-						txt2.setTextSize(32);
-						txt2.setPadding(25, 18, 10, 5);
-						txt2.setTextColor(Color.parseColor("#FFFFFF"));
-						linearLayout.addView(txt2);
-						
-			    		LinearLayout linearLayout2 = (LinearLayout) rootView.findViewById(R.id.daily_layout);
-						TextView txt1 = new TextView(getActivity());
-						txt1.setText("Some data was unavailable in your location and we are unable to update this section.");
-						txt1.setSingleLine(false);
-						txt1.setId(i);
-						txt1.setGravity(Gravity.CENTER);
-						Typeface myNewFace2 = Typeface.createFromAsset(getActivity().getAssets(),"fonts/Roboto-Light.ttf"); 
-						txt1.setTypeface(myNewFace2);
-						txt1.setTextSize(20);
-						txt1.setPadding(25, 5, 10, 10);
-						txt1.setTextColor(Color.parseColor("#FFFFFF"));
-						linearLayout2.addView(txt1); 
-		        	}
-		            TextView t2 = (TextView) rootView.findViewById(R.id.text_daily_forecastio);
-		            t2.setMovementMethod(LinkMovementMethod.getInstance());
-			        
-		        }
-		        String nav_section = getResources().getStringArray(R.array.nav_array)[i];
-		
-		        getActivity().setTitle(nav_section);
-		        return rootView;
-            } else {
             	///UPDATE NEW UI
-            	if (i == 0){
-            	
-            		
-	        	rootView = inflater.inflate(R.layout.fragment_summary_new, container, false);
-	        		if (current_icon.equals("clear-day")){
-	        			((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.clearday);
-	        		} else if (current_icon.equals("clear-night")) {
-	        			((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.clearnight);
-	        		} else if (current_icon.equals("rain")) {
-	        			((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.rain);
-	        		} else if (current_icon.equals("snow")) {
-	        			((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.snow);
-	        		} else if (current_icon.equals("sleet")) {
-	        			((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.sleet);
-	        		} else if (current_icon.equals("wind")) {
-	        			((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.windy);
-	        		} else if (current_icon.equals("fog")) {
-	        			((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.fog);
-	        		} else if (current_icon.equals("cloudy")) {
-	        			((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.cloudy);
-	        		} else if (current_icon.equals("partly-cloudy-day")) {
-	        			((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.partlycloudyday);
-	        		} else if (current_icon.equals("partly-cloudy-night")) {
-	        			((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.partlycloudynight);
-	        		} else {
-	        			((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.unknown);
+            	if (i == 0){          		
+	        	rootView = inflater.inflate(R.layout.fragment_summary_new, container, false);        		
+	        		switch (current_icon){
+	        			case "clear-day":
+		        			((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.clearday);
+	        				break;
+	        			case "clear-night":
+		        			((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.clearnight);
+	        				break;
+	        			case "rain":
+		        			((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.rain);
+		        			break;
+	        			case "snow":
+		        			((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.snow);
+		        			break;
+	        			case "sleet":
+		        			((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.sleet);
+		        			break;
+	        			case "wind":
+	        				((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.windy);
+	        				break;
+	        			case "fog":
+	        				((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.fog);
+	        				break;
+	        			case "cloudy":
+	        				((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.cloudy);
+	        				break;
+	        			case "partly-cloudy-day":
+	        				((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.partlycloudyday);
+	        				break;
+	        			case "partly-cloudy-night":
+	        				((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.partlycloudynight);
+	        				break;
+	        			default:
+	        				((ImageView) rootView.findViewById(R.id.icon)).setImageResource(R.drawable.unknown);
+	        				break;
 	        		}
+
 		       
-		            ((TextView) rootView.findViewById(R.id.text_now_temp)).setText(temp + "°");
+		            ((TextView) rootView.findViewById(R.id.text_now_temp)).setText(current_temperature + "°");
 		            ((TextView) rootView.findViewById(R.id.text_summary_now)).setText(current_summary);
-		            ((TextView) rootView.findViewById(R.id.text_summary_minutely)).setText(summary_minutely);
+		            ((TextView) rootView.findViewById(R.id.text_summary_minutely)).setText(minutely_summary);
 		            ((TextView) rootView.findViewById(R.id.text_summary_hourly)).setText(summary_hourly);
 		            ((TextView) rootView.findViewById(R.id.text_summary_daily)).setText(summary_daily);
 		            
@@ -937,7 +683,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 		        	            	
 		            ((TextView) rootView.findViewById(R.id.text_current_summary)).setText(current_summary);
 		            ((TextView) rootView.findViewById(R.id.text_current_precip)).setText(current_precipIntensity);
-		            ((TextView) rootView.findViewById(R.id.text_current_temp)).setText(temp + "°");
+		            ((TextView) rootView.findViewById(R.id.text_current_temp)).setText(current_temperature + "°");
 		            ((TextView) rootView.findViewById(R.id.text_current_dewpoint)).setText(current_dewPoint_int + "°");
 		            if(unitPref.equals("us")){
 		            	((TextView) rootView.findViewById(R.id.text_current_windspeed)).setText(current_windSpeed + " mph");
@@ -1003,7 +749,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 			    	    			icon = R.drawable.heavyrain;
 			    	    		}
 			    	            forecast =  temp_int + "°, " + rainChance_f + "% chance of " + rain;
-			    	            temp = temp_int + "°";
+			    	            current_temperature = temp_int + "°";
 			    	            percent = rainChance_f + "%";
 		    	    		
 			    	    		/*
@@ -1077,9 +823,9 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 		    	    				TextView txt1 = new TextView(getActivity());
 		    	    				System.out.println(hour1.length());
 		    	    				if(hour1.length() == 4){
-		    	    					txt1.setText("  " + hour1 + "  -  " + temp);
+		    	    					txt1.setText("  " + hour1 + "  -  " + current_temperature);
 		    	    				} else {
-		    	    					txt1.setText( hour1 + "  -  " + temp);
+		    	    					txt1.setText( hour1 + "  -  " + current_temperature);
 		    	    				}
 		    	    				txt1.setSingleLine(false);
 		    	    				txt1.setId(i+1);
@@ -1228,93 +974,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 		            t2.setMovementMethod(LinkMovementMethod.getInstance());            	}
             	
             	return rootView;            	
-            }
-        } else {
-        	if(uiPref.equals("Original")) {
-        	if (i == 0){
-            	rootView = inflater.inflate(R.layout.fragment_summary, container, false);
-               // ((TextView) rootView.findViewById(R.id.text_location)).setText(current_city);
-                SpannableString content = new SpannableString("NO LOCATION FOUND");
-                content.setSpan(new UnderlineSpan(), 0, content.length(), 0);
-                ((TextView) rootView.findViewById(R.id.text_location)).setText(content);
-                ((TextView) rootView.findViewById(R.id.text_summary_now)).setText("No data.");
-                ((TextView) rootView.findViewById(R.id.text_summary_minutely)).setText("No data.");
-                ((TextView) rootView.findViewById(R.id.text_summary_hourly)).setText("No data.");
-                ((TextView) rootView.findViewById(R.id.text_summary_daily)).setText("No data.");
-                
-                TextView t2 = (TextView) rootView.findViewById(R.id.text_summary_forecastio);
-                t2.setMovementMethod(LinkMovementMethod.getInstance());
-                
-
-                
-            } else if(i == 1){
-            	rootView = inflater.inflate(R.layout.fragment_current, container, false);
-            	
-            	            	
-                ((TextView) rootView.findViewById(R.id.text_current_summary)).setText("No data.");
-                ((TextView) rootView.findViewById(R.id.text_current_precip)).setText("");
-	            ((TextView) rootView.findViewById(R.id.text_current_temp)).setText("");
-	            ((TextView) rootView.findViewById(R.id.text_current_dewpoint)).setText("");
-	            ((TextView) rootView.findViewById(R.id.text_current_windspeed)).setText("");
-	            ((TextView) rootView.findViewById(R.id.text_current_visibility)).setText("");
-	            ((TextView) rootView.findViewById(R.id.text_current_windbearing)).setText("");
-	            ((TextView) rootView.findViewById(R.id.text_current_cloudcover)).setText("");
-	            ((TextView) rootView.findViewById(R.id.text_current_humidity)).setText("");
-	            ((TextView) rootView.findViewById(R.id.text_current_pressure)).setText("");
-	            ((TextView) rootView.findViewById(R.id.text_current_ozone)).setText("");
-                
-                TextView t2 = (TextView) rootView.findViewById(R.id.text_current_forecastio);
-                t2.setMovementMethod(LinkMovementMethod.getInstance());
-
-
-            } else if(i == 2){
-            	rootView = inflater.inflate(R.layout.fragment_hourly, container, false);
-    	    	    	        	    		
-        	    		LinearLayout linearLayout = (LinearLayout) rootView.findViewById(R.id.hourly_layout);
-        	    				TextView txt1 = new TextView(getActivity());
-        	    				txt1.setText("No data.");
-        	    				txt1.setSingleLine(false);
-        	    				txt1.setId(i);
-        	    				Typeface myNewFace = Typeface.createFromAsset(getActivity().getAssets(),"fonts/Roboto-Light.ttf"); 
-        	    				txt1.setTypeface(myNewFace);
-        	    				txt1.setTextSize(28);
-        	    				txt1.setPadding(15, 18, 10, 7);
-        	    				txt1.setTextColor(Color.parseColor("#FFFFFF"));
-        	    				linearLayout.addView(txt1);
-        	    		
-
-        	    		
-        			
-    	        
-                TextView t2 = (TextView) rootView.findViewById(R.id.text_hourly_forecastio);
-                t2.setMovementMethod(LinkMovementMethod.getInstance());
-            	
-            } else if(i == 3){
-            	rootView = inflater.inflate(R.layout.fragment_daily, container, false);
-            	
-        	    		LinearLayout linearLayout2 = (LinearLayout) rootView.findViewById(R.id.daily_layout);
-        				TextView txt1 = new TextView(getActivity());
-        				txt1.setText("No data.");
-        				txt1.setSingleLine(false);
-        				txt1.setId(i);
-        				txt1.setGravity(Gravity.LEFT);
-        				Typeface myNewFace2 = Typeface.createFromAsset(getActivity().getAssets(),"fonts/Roboto-Light.ttf"); 
-        				txt1.setTypeface(myNewFace2);
-        				txt1.setTextSize(28);
-        				txt1.setPadding(15, 18, 10, 7);
-        				txt1.setTextColor(Color.parseColor("#FFFFFF"));
-        				linearLayout2.addView(txt1); 
-        				
-            	
-            	
-                TextView t2 = (TextView) rootView.findViewById(R.id.text_daily_forecastio);
-                t2.setMovementMethod(LinkMovementMethod.getInstance());
-    	        
-            } 
-            String nav_section = getResources().getStringArray(R.array.nav_array)[i];
-
-            getActivity().setTitle(nav_section);
-            return rootView;
         } else {
         	if (i == 0){
             	
@@ -1400,7 +1059,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         	
         } 
         	
-        }
         }
     }
     

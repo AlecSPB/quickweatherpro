@@ -20,12 +20,30 @@ public class InfoMethods {
 
 	Context mContext;
 	
-	static String current_city;	
-	static String current_icon;
-	static String temp;
+
 	static int temp_int;
-    static String current_summary;
-    static String summary_minutely;
+    static String
+    current_summary,
+    current_city,
+    current_icon,
+    current_time, 
+    current_precipIntensity,
+    current_precipProbability,
+    current_precipType,
+    current_temperature,
+    current_apparentTemperature,
+    current_dewPoint,
+    current_humidity,
+    current_windSpeed,
+    current_windBearing,
+    current_visibility,
+    current_cloudCover,
+    current_pressure,
+    current_ozone;
+    
+    static String minutely_summary,
+    minutely_icon;
+    
     static String summary_hourly;
     static String summary_daily;
 
@@ -64,22 +82,39 @@ public static void updateFIO(Context mContext){
 		System.out.println("Creating FIO ResponseString...");
 		
 		current_icon = FIOR.getCurrently().getValue("icon");
-		temp = FIOR.getCurrently().getValue("temperature");
+		current_temperature = FIOR.getCurrently().getValue("temperature");
+	    current_apparentTemperature = FIOR.getCurrently().getValue("apparentTemperature");
 			
-		if(temp != null){
+		if(current_temperature != null){
 				//getValue("temperature") returns numbers like 71.23, so this:
 				//Converts the String to Float, then truncates it to an Int.
 				//Then you'll convert it back to a String.
 				//That's probably not a good way to do things.
 				//Oh well.
-				temp_int = (int)Float.parseFloat(temp);
-				temp = String.valueOf(temp_int);
+				temp_int = (int)Float.parseFloat(current_temperature);
+				current_temperature = String.valueOf(temp_int);
 		}
+		if(current_apparentTemperature != null){
+			temp_int = (int)Float.parseFloat(current_apparentTemperature);
+			current_apparentTemperature = String.valueOf(temp_int);
+	}
 		
 	    current_summary = FIOR.getCurrently().getValue("summary");
-	    summary_minutely = FIOR.getMinutely().getValue("summary");
+	    minutely_summary = FIOR.getMinutely().getValue("summary");
 	    summary_hourly = FIOR.getHourly().getValue("summary");
 	    summary_daily = FIOR.getDaily().getValue("summary");
+	    current_time = FIOR.getCurrently().getValue("time"); 
+	    current_precipIntensity = FIOR.getCurrently().getValue("precipIntensity");
+	    current_precipProbability = FIOR.getCurrently().getValue("precipProbability");
+	    current_precipType = FIOR.getCurrently().getValue("precipType");
+	    current_dewPoint = FIOR.getCurrently().getValue("dewPoint");
+	    current_humidity = FIOR.getCurrently().getValue("humidity");
+	    current_windSpeed = FIOR.getCurrently().getValue("windSpeed");
+	    current_windBearing = FIOR.getCurrently().getValue("windBearing");
+	    current_visibility = FIOR.getCurrently().getValue("visibility");
+	    current_cloudCover = FIOR.getCurrently().getValue("cloudCover");
+	    current_pressure = FIOR.getCurrently().getValue("pressure");
+	    current_ozone = FIOR.getCurrently().getValue("ozone");
 	    /*
 	     * Add ALL the other strings you want to grab here.
 	     */
@@ -117,10 +152,23 @@ public static void storeInfo(SharedPreferences vars) {
     prefEditor.putString("current_city", current_city);
 	prefEditor.putString("current_icon", current_icon);    
 	prefEditor.putString("current_summary", current_summary);
-	prefEditor.putString("temp", temp);
-	prefEditor.putString("summary_minutely", summary_minutely);
+	prefEditor.putString("current_temperature", current_temperature);
+	prefEditor.putString("current_apparentTemperature", current_apparentTemperature);
+	prefEditor.putString("minutely_summary", minutely_summary);
 	prefEditor.putString("summary_hourly", summary_hourly);
 	prefEditor.putString("summary_daily", summary_daily);
+	prefEditor.putString("current_time", current_time);
+	prefEditor.putString("current_precipIntensity", current_precipIntensity);
+	prefEditor.putString("current_precipProbability", current_precipProbability);
+	prefEditor.putString("current_precipType", current_precipType);
+	prefEditor.putString("current_dewPoint", current_dewPoint);
+	prefEditor.putString("current_humidity", current_humidity);
+    prefEditor.putString("current_windSpeed", current_windSpeed);
+    prefEditor.putString("current_windBearing", current_windBearing);
+    prefEditor.putString("current_visibility", current_visibility);
+    prefEditor.putString("current_cloudCover", current_cloudCover);
+    prefEditor.putString("current_pressure", current_pressure);
+    prefEditor.putString("current_ozone", current_ozone);
 	/*
 	 * Store ALL the other strings you grabbed here.
 	 */
