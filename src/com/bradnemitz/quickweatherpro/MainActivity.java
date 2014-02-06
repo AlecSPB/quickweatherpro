@@ -59,6 +59,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.arcusweather.forecastio.ForecastIO;
+import com.arcusweather.forecastio.ForecastIODataPoint;
+import com.arcusweather.forecastio.ForecastIOResponse;
 import com.bradnemitz.quickweatherpro.locationutils.*;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -90,29 +93,48 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     static String userSetLocation;
    
     
-    //Strings set from JSON
-    static String timeZone;
-    static String current_summary;
-    static String current_icon;
-    static String current_precipIntensity;
-    static String current_temp;
-    static String current_dewPoint;
-    static String current_windSpeed;
-    static String current_windBearing;
-    static String current_cloudCover;
-    static String current_humidity;
-    static String current_pressure;
-    static String current_visibility;
-    static String current_time;
-    static String current_precipProbability;
-    static String current_precipType;
-    static String current_ozone;
-    static String windBearing; 
-    static String minutely_summary;
+static Context mContext;
+	
+	static ForecastIOResponse FIOR; 
+
+	static int temp_int;
+    static String
+    current_summary,
+    current_icon,
+    current_time, 
+    current_precipIntensity,
+    current_precipProbability,
+    current_precipType,
+    current_temperature,
+    current_apparentTemperature,
+    current_dewPoint,
+    current_humidity,
+    current_windSpeed,
+    current_windBearing,
+    current_visibility,
+    current_cloudCover,
+    current_pressure,
+    current_ozone;
+    
+    static String minutely_summary,
+    minutely_icon;
+    
     static String summary_hourly;
+    
+    static ForecastIODataPoint[] minutelyPoints, hourlyPoints, dailyPoints;
+    
+    static String[] 
+    		hourly_times,
+    		hourly_temps;
+    		
+    
+    
     static String summary_daily;
+    
+    static String timeZone;
+    static String current_temp;
+    static String windBearing; 
     static String current_city = "Quick Weather Pro";
-    static int temp_int;
     static float current_humidity_f;
     static float current_humidity_percent;
     static int current_humidity_percent_int;
@@ -123,7 +145,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     Date lastUpdateTime;
     long lastUpdateTime_l;
     
-    static String current_temperature;
     static String percent;
     
     static int i = 0;
@@ -190,6 +211,8 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     // JSONArray
     static JSONArray hourly_array = null;
     static JSONArray daily_array = null;
+    
+    
     
     
     
@@ -286,8 +309,8 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
  		   protected String doInBackground(String... params) {
  			  
  			  SharedPreferences vars = getSharedPreferences("Variables", 0);  
- 			  InfoMethods.updateFIO(getBaseContext());
- 			  InfoMethods.storeInfo(vars);
+ 			  updateFIO(getBaseContext());
+ 			  storeInfo(vars, getBaseContext());
  			  retrieveInfo(vars);
  			  
  			  runOnUiThread(new Runnable(){
@@ -299,7 +322,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
  			  });
 
  		      updateUI();
- 		      
+ 		       		      
  		      notUpdated = false;
  		      
  			return null;
@@ -387,9 +410,146 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
     }
     
+    public static void updateFIO(Context mContext){
+    	
+    	System.out.println("Using arcus weather lib from InfoMethods to update");
+    	
+    	LocationMethods.updateCurrentLocation(mContext);
+    	Location location = LocationMethods.getCurrentLocation();
+    	
+    	double lat = 0;
+    	double lng = 0;
+    	
+    	if(location != null){
+    	    lat = (double) (location.getLatitude());
+    	    lng = (double) (location.getLongitude());
+    	    
+    	    getCityName(mContext, lat, lng);
+    		
+    	    SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
+    	    String unitPref = sharedPref.getString("units_selection", "us");
+    		
+    	    ForecastIO FIO = new ForecastIO("317e87f882c890e30f4a5e9b3c05c7c0", lat, lng);
+    		System.out.println("Creating FIO...");
+    	
+    		HashMap<String, String> requestParams = new HashMap<String, String>();
+    	    requestParams.put("units", unitPref);
+    	    FIO.setRequestParams(requestParams);
+    	    FIO.makeRequest();
+    		System.out.println("Making request FIO...");
+    	
+    	    String responseString = FIO.getResponseString();  
+    	    FIOR = new ForecastIOResponse(responseString);
+    		System.out.println("Creating FIO ResponseString...");
+    		
+    		current_icon = FIOR.getCurrently().getValue("icon");
+    		current_temperature = FIOR.getCurrently().getValue("temperature");
+    	    current_apparentTemperature = FIOR.getCurrently().getValue("apparentTemperature");
+    			
+    		if(current_temperature != null){
+    				//getValue("temperature") returns numbers like 71.23, so this:
+    				//Converts the String to Float, then truncates it to an Int.
+    				//Then you'll convert it back to a String.
+    				//That's probably not a good way to do things.
+    				//Oh well.
+    				temp_int = (int)Float.parseFloat(current_temperature);
+    				current_temperature = String.valueOf(temp_int);
+    		}
+    		if(current_apparentTemperature != null){
+    			temp_int = (int)Float.parseFloat(current_apparentTemperature);
+    			current_apparentTemperature = String.valueOf(temp_int);
+    	}
+    		
+    	    current_summary = FIOR.getCurrently().getValue("summary");
+    	    minutely_summary = FIOR.getMinutely().getValue("summary");
+    	    summary_hourly = FIOR.getHourly().getValue("summary");
+    	    summary_daily = FIOR.getDaily().getValue("summary");
+    	    current_time = FIOR.getCurrently().getValue("time"); 
+    	    current_precipIntensity = FIOR.getCurrently().getValue("precipIntensity");
+    	    current_precipProbability = FIOR.getCurrently().getValue("precipProbability");
+    	    current_precipType = FIOR.getCurrently().getValue("precipType");
+    	    current_dewPoint = FIOR.getCurrently().getValue("dewPoint");
+    	    current_humidity = FIOR.getCurrently().getValue("humidity");
+    	    current_windSpeed = FIOR.getCurrently().getValue("windSpeed");
+    	    current_windBearing = FIOR.getCurrently().getValue("windBearing");
+    	    current_visibility = FIOR.getCurrently().getValue("visibility");
+    	    current_cloudCover = FIOR.getCurrently().getValue("cloudCover");
+    	    current_pressure = FIOR.getCurrently().getValue("pressure");
+    	    current_ozone = FIOR.getCurrently().getValue("ozone");
+    	    
+    	    timeZone = FIOR.getValue("timezone"); ///THIS IS SO PASSING IT TO DAY FROM UNIX THING DOESN"T CRASH>!.
+    	    
+    	    /*
+    	     * Add ALL the other strings you want to grab here.
+    	     */
+    	    
+    	    minutelyPoints = FIOR.getDataPoints("minutely");
+    	    hourlyPoints = FIOR.getDataPoints("hourly");
+    	    dailyPoints = FIOR.getDataPoints("daily");
+    	   	    
+    	    
+    	    
+    	} else {
+    		//Location was null. Do something about it.
+    	}
+    }
+
+    public static void getCityName(Context mContext, double lat, double lng){
+    	//get current city
+        Geocoder gcd = new Geocoder(mContext, Locale.getDefault());
+        List<Address> addresses = null;
+        try {
+    		addresses = gcd.getFromLocation(lat, lng, 1);
+        } catch (IOException e) {
+    		
+    		e.printStackTrace();
+        }
+        if (addresses != null) {
+      	  try{
+            current_city = addresses.get(0).getLocality();
+            System.out.println(current_city);
+      	  } catch (NullPointerException e) {
+      		  //There's an error! Do something
+      	  } catch (IndexOutOfBoundsException i) {
+      		  //Different error! Oh no!
+        	  }
+        }
+    }
+
+
+    public static void storeInfo(SharedPreferences vars, Context mContext) {
+        SharedPreferences.Editor prefEditor = vars.edit();
+        prefEditor.putString("current_city", current_city);
+    	prefEditor.putString("current_icon", current_icon);    
+    	prefEditor.putString("current_summary", current_summary);
+    	prefEditor.putString("current_temperature", current_temperature);
+    	prefEditor.putString("current_apparentTemperature", current_apparentTemperature);
+    	prefEditor.putString("minutely_summary", minutely_summary);
+    	prefEditor.putString("summary_hourly", summary_hourly);
+    	prefEditor.putString("summary_daily", summary_daily);
+    	prefEditor.putString("current_time", current_time);
+    	prefEditor.putString("current_precipIntensity", current_precipIntensity);
+    	prefEditor.putString("current_precipProbability", current_precipProbability);
+    	prefEditor.putString("current_precipType", current_precipType);
+    	prefEditor.putString("current_dewPoint", current_dewPoint);
+    	prefEditor.putString("current_humidity", current_humidity);
+        prefEditor.putString("current_windSpeed", current_windSpeed);
+        prefEditor.putString("current_windBearing", current_windBearing);
+        prefEditor.putString("current_visibility", current_visibility);
+        prefEditor.putString("current_cloudCover", current_cloudCover);
+        prefEditor.putString("current_pressure", current_pressure);
+        prefEditor.putString("current_ozone", current_ozone);
+    	/*
+    	 * Store ALL the other strings you grabbed here.
+    	 */
+        prefEditor.commit();
+        
+    }
+    
+    
     public void retrieveInfo(SharedPreferences vars){
     	current_city = vars.getString("current_city", "Unknown");
-		current_icon = vars.getString("current_icon", "Unknown"); ///////////////DEFAULT VALUE SHOULD PROBABLY NOT BE NULL. IDIOT.
+		current_icon = vars.getString("current_icon", "Unknown");
 		current_summary = vars.getString("current_summary", "No data.");
 		current_temperature = vars.getString("current_temperature", "??");
 		minutely_summary = vars.getString("minutely_summary", "No data.");
@@ -414,6 +574,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 		/*
 		 * Here is where you'd retrieve all the strings you stored in InfoMethods.
 		 */
+	    
     }
     
 	@Override
@@ -710,26 +871,66 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 		        	String day1 = "notADaySoItAlwaysIsn'tEqualTheFirstTime";
 		        	String oldDay;
 		        	String forecast;
-			        for(int i = 0; i < hourly_array.length(); i++){
+		        	
+	 	    	    for(i=0;i<hourlyPoints.length;i++){
+	 	    	    	System.out.println(hourlyPoints[i].getValue("summary"));
+	 	    	    	String time = hourlyPoints[i].getValue("time"); //formerly time1
+	 	    	    	int temp = hourlyPoints[i].getValueAsDouble("temperature").intValue(); //formerly temp1
+	 	    	    	double precipIntensity = hourlyPoints[i].getValueAsDouble("precipIntensity"); //formerly chance1
+	 	    	    	int icon = 0;
+	 	    	    	int precipProb; //rainChance_f
+	 	    	    	Double precipProbD;
+	 	    	    	String precipType; //precipType
+	 	    	    	if(precipIntensity != 0){
+	 	    	    		precipProbD  = 100 * hourlyPoints[i].getValueAsDouble("precipProbability");
+	 	    	    		precipProb = precipProbD.intValue();
+	 	    	    		precipType = hourlyPoints[i].getValue("precipType");
+	 	    	    	} else {
+	 	    	    		precipProb = 0;
+	 	    	    		precipType = null;
+	 	    	    	}
+	 	    	    	
+	 	    	    	String rain = null;
+	 	    	    	
+	    	    		if(precipIntensity < 0.002){
+	    	    			//nothing
+	    	    		} else if (precipIntensity >= 0.002 && precipIntensity < 0.015){
+	    	    			rain = "light " + precipType;
+	    	    			icon = R.drawable.lightrain;
+	    	    		} else if (precipIntensity >= 0.015 && precipIntensity < 0.08){
+	    	    			rain = "moderate " + precipType;
+	    	    			icon = R.drawable.modrain;
+	    	    		} else if (precipIntensity >= 0.08){
+	    	    			rain = "heavy " + precipType;
+	    	    			icon = R.drawable.heavyrain;
+	    	    		}
+	    	            forecast =  temp + "°, " + precipProb + "% chance of " + rain;
+	    	            String hourly_temperature = temp + "°";
+	    	            percent = precipProb + "%";
+	 	    	    	
+	 	    	    /*
+		        	
+		        	//OLD WAY BELOW HERE FOR i = 2
+			       for(int i = 0; i < hourly_array.length(); i++){
 		
 		    	        try {
 		    	    		Object hm1 = hourly_array.get(i);
-		    	    		String time1 = ((JSONObject) hm1).get(TAG_HOURLY_TIME).toString();
-		    	    		String temp1 = ((JSONObject) hm1).get(TAG_HOURLY_TEMP).toString();
-		    	    		int temp_int = (int)Float.parseFloat(temp1);
-		    	    		String chance1 = ((JSONObject) hm1).get(TAG_HOURLY_PRECIPINTENSITY).toString();
-		    	    		Float chance1_f = Float.parseFloat(chance1);
-		    	    		int rainChance_f;
-		    	    		String precipType;
-		    	    		int icon = 0;
-		    	    		if(chance1_f != 0){
-			    	    		String rainChance = ((JSONObject) hm1).getString(TAG_HOURLY_PRECIPPROB).toString();
-			    	    		rainChance_f = (int)(Float.parseFloat(rainChance) * 100);
-			    	    		precipType = ((JSONObject) hm1).get(TAG_HOURLY_PRECIPTYPE).toString();
-		    	    		} else {
-		    	    			rainChance_f = 0;
-		    	    			precipType = null;
-		    	    		}
+		    	   // 		String time1 = ((JSONObject) hm1).get(TAG_HOURLY_TIME).toString();
+		    	   // 		String temp1 = ((JSONObject) hm1).get(TAG_HOURLY_TEMP).toString();
+		    	   // 		int temp_int = (int)Float.parseFloat(temp1);
+		    	   // 		String chance1 = ((JSONObject) hm1).get(TAG_HOURLY_PRECIPINTENSITY).toString();
+		    	   // 		Float chance1_f = Float.parseFloat(chance1);
+		    	   // 		int rainChance_f;
+		    	   // 		String precipType;
+		    	  //  		int icon = 0;
+		    	   // 		if(chance1_f != 0){
+			    	//    		String rainChance = ((JSONObject) hm1).getString(TAG_HOURLY_PRECIPPROB).toString();
+			    	//    		rainChance_f = (int)(Float.parseFloat(rainChance) * 100);
+			    	//    		precipType = ((JSONObject) hm1).get(TAG_HOURLY_PRECIPTYPE).toString();
+		    	    //		} else {
+		    	    //			rainChance_f = 0;
+		    	   // 			precipType = null;
+		    	   // 		}
 		    	    		
 		    	    		String rain = null;
 		    	    		
@@ -756,11 +957,12 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 			    	    		 * A very rough guide is that a value of 0 corresponds to no precipitation, 0.002 corresponds to very light sprinkling, 
 			    	    		 * 0.017 corresponds to light precipitation, 0.1 corresponds to moderate precipitation, and 0.4 corresponds to very heavy precipitation.
 			    	    		 */
-			    	    		oldDay = day1;
-			    	            day1 = ExtractWeekdayFromUNIX(time1, timeZone).toUpperCase();
-			    	            int dayToCheck = ExtractWeekdayFromUNIX_Int(time1, timeZone);
+			    	    		
+			    	            oldDay = day1;
+			    	            day1 = ExtractWeekdayFromUNIX(time, timeZone).toUpperCase();
+			    	            int dayToCheck = ExtractWeekdayFromUNIX_Int(time, timeZone);
 			    	            int dayToCheck2 = (dayToCheck - 1)%7;
-			    	            String hour1 = ExtractHourFromUNIX(time1, timeZone);
+			    	            String hour1 = ExtractHourFromUNIX(time, timeZone);
 			    	            Calendar cal = Calendar.getInstance();
 			    	            TimeZone tz = TimeZone.getTimeZone(timeZone);
 			    	            cal.setTimeZone(tz);
@@ -821,11 +1023,10 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 		    	    		
 		    	    		RelativeLayout relLayout = (RelativeLayout) rootView.findViewById(R.id.hourly_layout);
 		    	    				TextView txt1 = new TextView(getActivity());
-		    	    				System.out.println(hour1.length());
 		    	    				if(hour1.length() == 4){
-		    	    					txt1.setText("  " + hour1 + "  -  " + current_temperature);
+		    	    					txt1.setText("  " + hour1 + "  -  " + hourly_temperature);
 		    	    				} else {
-		    	    					txt1.setText( hour1 + "  -  " + current_temperature);
+		    	    					txt1.setText( hour1 + "  -  " + hourly_temperature);
 		    	    				}
 		    	    				txt1.setSingleLine(false);
 		    	    				txt1.setId(i+1);
@@ -884,9 +1085,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 		    	    				}
 		
 		    	    		
-		    			} catch (JSONException e) {
-		    				e.printStackTrace();
-		    			}
 			        }
 		            TextView t2 = (TextView) rootView.findViewById(R.id.text_hourly_forecastio);
 		            t2.setMovementMethod(LinkMovementMethod.getInstance());            	

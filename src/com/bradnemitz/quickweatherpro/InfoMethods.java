@@ -18,7 +18,7 @@ import com.bradnemitz.quickweatherpro.locationutils.LocationMethods;
 
 public class InfoMethods {
 
-	Context mContext;
+	static Context mContext;
 	
 
 	static int temp_int;
@@ -45,6 +45,9 @@ public class InfoMethods {
     minutely_icon;
     
     static String summary_hourly;
+    
+    static String[] hourly_times;
+    
     static String summary_daily;
 
 public static void updateFIO(Context mContext){
@@ -69,9 +72,7 @@ public static void updateFIO(Context mContext){
 	    ForecastIO FIO = new ForecastIO("317e87f882c890e30f4a5e9b3c05c7c0", lat, lng);
 		System.out.println("Creating FIO...");
 	
-	
-	    //ability to set the units, exclude blocks, extend options and user agent for the request. This is not required.
-	    HashMap<String, String> requestParams = new HashMap<String, String>();
+		HashMap<String, String> requestParams = new HashMap<String, String>();
 	    requestParams.put("units", unitPref);
 	    FIO.setRequestParams(requestParams);
 	    FIO.makeRequest();
@@ -147,7 +148,7 @@ public static void getCityName(Context mContext, double lat, double lng){
 }
 
 
-public static void storeInfo(SharedPreferences vars) {
+public static void storeInfo(SharedPreferences vars, Context mContext) {
     SharedPreferences.Editor prefEditor = vars.edit();
     prefEditor.putString("current_city", current_city);
 	prefEditor.putString("current_icon", current_icon);    
@@ -172,7 +173,8 @@ public static void storeInfo(SharedPreferences vars) {
 	/*
 	 * Store ALL the other strings you grabbed here.
 	 */
-    prefEditor.commit(); 
+    prefEditor.commit();
+    
 }
 
 
